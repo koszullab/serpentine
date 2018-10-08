@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 """Serpentine binning
 
@@ -21,8 +21,17 @@ Options:
                                     [default: False]
     --test-size 500                 Size of the test matrix for the demo.
                                     [default: 500]
-
 """
+
+__author__ = "Cluster Buster (scovit, a.k.a. Vittore F. Scolari), \
+              Lyamovich (baudrly, a.k.a. Lyam Baudry)"
+__copyright__ = "Copyright © 2017-2018, Institut Pasteur, Paris, France"
+__credits__ = ["Cluster Buster", "Lyamvich"]
+__license__ = "Artistic"
+__version__ = "1.0"
+__maintainer__ = "Cluster Buster"
+__email__ = "vittore.scolari@gmail.com"
+__status__ = "Production"
 
 import numpy as _np
 import pandas as _pd
@@ -587,7 +596,7 @@ def _test(
 
 def _main():
 
-    arguments = _doc.docopt(__doc__, version=version.__version__)
+    arguments = _doc.docopt(__doc__, version=__version__)
 
     inputA = arguments["<matrixA>"]
     inputB = arguments["<matrixB>"]
