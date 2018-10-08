@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# coding: utf-8
 
 """Serpentine binning
 
@@ -7,7 +8,7 @@ in Scolari et al.
 
 Usage:
     serpentine.py <matrixA> <matrixB> [--threshold=10] [--min-threshold=1]
-                                      [--test] [--test-size]
+                                      [--test] [--test-size=500]
 
 Options:
     -h, --help                      Display this help message.
@@ -17,8 +18,10 @@ Options:
     -m 1, --min-threshold 1         Minimum value to force trigger binning in
                                     either matrix. [default: 1]
     --test                          Run a demo on randomly generated matrices.
+                                    [default: False]
     --test-size 500                 Size of the test matrix for the demo.
-                                    [default: 300]
+                                    [default: 500]
+
 """
 
 import numpy as _np
@@ -31,13 +34,12 @@ import warnings as _warns
 from random import choice as _choice
 import multiprocessing as _mp
 from datetime import datetime as _datetime
+import version
 
 DEFAULT_MIN_THRESHOLD = 10
 DEFAULT_THRESHOLD = 40
 DEFAULT_ITERATIONS = 10
 DEFAULT_SIZE = 300
-
-VERSION_NUMBER = "0.1a"
 
 
 def serpentin_iteration(
@@ -585,7 +587,7 @@ def _test(
 
 def _main():
 
-    arguments = _doc.docopt(__doc__, version=VERSION_NUMBER)
+    arguments = _doc.docopt(__doc__, version=version.__version__)
 
     inputA = arguments["<matrixA>"]
     inputB = arguments["<matrixB>"]

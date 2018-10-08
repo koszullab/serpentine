@@ -2,4 +2,3 @@ numpy
 scipy
 docopt
 matplotlib
-pandas
