@@ -50,7 +50,36 @@ def serpentin_iteration(
     verbose=True,
 ):
 
-    """Perform a single iteration of binning
+    """Perform a single iteration of serpentin binning
+
+    Each serpentin binning is generally executed in multiple
+    iterations in order to smooth the random variability in the
+    bin aggregation. This funciton performs a single iteration.
+
+    Parameters
+    ----------
+    A, B : array_like
+        The matrices to be compared.
+    threshold : float, optional
+        The threshold of rebinning for the highest coverage matrix.
+    minthreshold : float, optional
+        The threshold for both matrices
+    triangular : bool, optional
+        Set triangular if you are interested in rebin only half of the
+        matrix (for instance in the case of matrices which are
+        already triangular, default is false)
+    verbose : bool, optional
+        Set it false if you are annoyed by the printed output.
+
+    Returns
+    -------
+    Amod, Bmod : array_like
+        The rebinned matrices
+    D : array_like
+        The log-ratio matrix, expressend in base 2. Attention, the
+        matrix need to be normalized by subtractiong an appropriate
+        value for the zero (MDbefore or numpy.mean functions are there
+        to help you in this task).
     """
 
     if triangular:
@@ -245,10 +274,46 @@ def serpentin_binning(
     iterations=DEFAULT_ITERATIONS,
     triangular=False,
     verbose=True,
-    parallel=16,
+    parallel=4,
 ):
 
-    """Perform binning
+    """Perform the serpentin binning
+
+    The function will perform the algorithm to serpentin bin two
+    matrices, iterations can be done in series or in parallel,
+    convinient for multi-processor machines.
+
+    Parameters
+    ----------
+    A, B : array_like
+        The matrices to be compared.
+    threshold : float, optional
+        The threshold of rebinning for the highest coverage matrix.
+    minthreshold : float, optional
+        The threshold for both matrices
+    iterations : int, optional
+        The number of iterations requested, more iterations will
+        consume more time, but also will result in better and smoother
+        results
+    triangular : bool, optional
+        Set triangular if you are interested in rebin only half of the
+        matrix (for instance in the case of matrices which are
+        already triangular, default is false)
+    verbose : bool, optional
+        Set it false if you are annoyed by the printed output.
+    parallel : int, optional
+        Set it to the number of your processor if you want to attain
+        maximum speeds
+
+    Returns
+    -------
+    sA, sB : array_like
+        The rebinned matrices
+    sK : array_like
+        The log-ratio matrix, expressend in base 2. Attention, the
+        matrix need to be normalized by subtractiong an appropriate
+        value for the zero (MDbefore or numpy.mean functions are there
+        to help you in this task).
     """
 
     if triangular:
@@ -336,6 +401,20 @@ def _MDplot(ACmean, ACdiff, trans, xlim=None, ylim=None):
 def mad(data, axis=None):
 
     """Median absolute deviation
+
+    Calculates the median absolute deviation of data
+
+    Parameters
+    ----------
+    data : array_like
+        The dataset
+    axis : int, optional
+        The axis over which perform the numpy.median function
+
+    Returns
+    -------
+    int
+        The median absolute deviation
     """
 
     return _np.median(_np.absolute(data - _np.median(data, axis)), axis)
@@ -345,6 +424,16 @@ def outstanding_filter(X):
 
     """Generate filtering index that removes outstanding values (three standard
     deviations above or below the mean).
+
+    Parameters
+    ----------
+    X : array_like
+        The dataset
+
+    Returns
+    -------
+    array_like
+        The boolean filter
     """
 
     with _np.errstate(divide="ignore", invalid="ignore"):
@@ -357,9 +446,25 @@ def outstanding_filter(X):
 
 def fltmatr(X, flt):
 
-    """Filter a 2D matrix in both dimensions according to an index.
+    """Filter a 2D matrix in both dimensions according to an boolean
+    vector.
 
-    Example:
+
+    Parameters
+    ----------
+    X : array_like
+        The input matrix
+    flr : array_like
+        The boolean filter
+
+    Returns
+    -------
+    array_like
+        The filtered matrix
+
+    Example
+    -------
+
         >>> import numpy as np
         >>> M = np.ones((5, 5))
         >>> M[2:4, 2:4] = 2
@@ -436,6 +541,46 @@ def _madplot(
 def MDbefore(XA, XB, s=10, xlim=None, ylim=None, triangular=False, show=True):
 
     """MD plot before binning
+
+    The MD plot is the main metric provided by the serpentin binning
+    package, it visualized the variability in function of the mean
+    coverage of a couple of matrices to be compared. This version is
+    optimized to be run before the serpentin binning. The return
+    values of this funciton will be hints on the values to use to
+    normalize the differential matrix and as a threshold for the
+    serpentin binning algorithm.
+
+    Parameters
+    ----------
+    XA, XB : array_like
+        The input matrices
+    s : int, optional
+        How many point use for the trend lines, depends on statistics
+        and range
+    xlim : float, optional
+        Limits for the x-axis
+    ylim : float, optional
+        Limits for the y-axis
+    triangular : bool, optional
+        Set triangular if you are interested in rebin only half of the
+        matrix (for instance in the case of matrices which are
+        already triangular, default is false)
+    show : bool, optional
+        Set it to false if you are not interested in the graph but
+        only in the return values of this function.
+
+    Returns
+    -------
+    trend : float
+        This is the extrapolated trend of the two matrices, it is
+        measured by the ratio of the most covered part of the two
+        matrices, use it to set the zero to the output of the
+        differential analysis if you think this works better than the
+        np.mean() function.
+    threshold : float
+        If the statistics permits the automatical extimation of the
+        threshold, this will be a good parameter to use as input to
+        the serpentin binning algorithm
     """
 
     if triangular:
@@ -457,6 +602,38 @@ def MDafter(
 ):
 
     """MD plot after binning
+
+    The MD plot is the main metric provided by the serpentin binning
+    package, it visualized the variability in function of the mean
+    coverage of a couple of matrices to be compared. This version is
+    optimized to be run after the serpentin binning. The return values
+    of this function should be generally ignored.
+
+    Parameters
+    ----------
+    XA, XB : array_like
+        The input matrices
+    XD : array_like
+        The differential matrix obtained by serpentin binnning
+    s : int, optional
+        How many point use for the trend lines, depends on statistics
+        and range
+    xlim : float, optional
+        Limits for the x-axis
+    ylim : float, optional
+        Limits for the y-axis
+    triangular : bool, optional
+        Set triangular if you are interested in rebin only half of the
+        matrix (for instance in the case of matrices which are
+        already triangular, default is false)
+    show : bool, optional
+        Set it to false if you are not interested in the graph but
+        only in the return values of this function.
+
+    Returns
+    -------
+    trend, threshold : float
+        Normally something which should not bother you
     """
 
     if triangular:
@@ -476,6 +653,28 @@ def MDafter(
 def dshow(dif, trend, limit, triangular=False):
 
     """Show differential matrix
+
+    A boilerplate around the imshow matplotlib function to show the
+    differential matrix
+
+    Parameters
+    ----------
+    dif : array_like
+        The differential matrix
+    trend : float
+        The value of the zero, please use either the output of
+        MDbefore function or the value of md.mean(dif)
+    limit : float
+        The colorscale limit of the log-ratio, setting it to 2 or 3
+        seems like a sensible choice.
+    triangular : bool, optional
+        Set triangular if you are interested in rebin only half of the
+        matrix (for instance in the case of matrices which are
+        already triangular, default is false)
+
+    Returns
+    -------
+    The plot
     """
 
     colors = [(0, 0, .5), (0, 0, 1), (1, 1, 1), (1, 0, 0), (.5, 0, 0)]
