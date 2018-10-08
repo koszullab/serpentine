@@ -34,14 +34,6 @@ from random import choice as _choice
 import multiprocessing as _mp
 from datetime import datetime as _datetime
 
-__author__ = "Cluster Buster (scovit, a.k.a. Vittore F. Scolari), \
-              Lyamovich (baudrly, a.k.a. Lyam Baudry)"
-__copyright__ = "Copyright © 2017-2018, Institut Pasteur, Paris, France"
-__credits__ = ["Cluster Buster", "Lyamovich"]
-__license__ = "Artistic"
-__maintainer__ = "Cluster Buster"
-__email__ = "vittore.scolari@pasteur.fr"
-__status__ = "Pre-Alpha"
 
 DEFAULT_MIN_THRESHOLD = 10
 DEFAULT_THRESHOLD = 40
@@ -366,6 +358,22 @@ def outstanding_filter(X):
 def fltmatr(X, flt):
 
     """Filter a 2D matrix in both dimensions according to an index.
+
+    Example:
+        >>> import numpy as np
+        >>> M = np.ones((5, 5))
+        >>> M[2:4, 2:4] = 2
+        >>> M
+        array([[1., 1., 1., 1., 1.],
+               [1., 1., 1., 1., 1.],
+               [1., 1., 2., 2., 1.],
+               [1., 1., 2., 2., 1.],
+               [1., 1., 1., 1., 1.]])
+        >>> flt = M.sum(axis=1) > 5
+        >>> fltmatr(M, flt)
+        array([[2., 2.],
+               [2., 2.]])
+
     """
 
     X = _np.copy(X)

@@ -1,0 +1,31 @@
+language: python
+env:
+  matrix:
+  - PYVER="3.6"
+  global:
+  - PROJECT_NAME=serpentine
+  - GITHUB_REPO_NAME=axelcournac/serpentin
+  - secure:
+os:
+- linux
+- osx
+before_install:
+- |
+  if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    mkdir $HOME/.matplotlib;
+    echo "backend : TkAgg" >> $HOME/.matplotlib/matplotlibrc
+  fi;
+install:
+- pip install -r requirements.txt
+- pip install pytest pylint pytest-cov
+- python setup.py install
+script:
+- pytest --pylint --pylint-error-types=EF serpentine
+- cd tests;pytest --cov=serpentine
+- |
+  if [[ $TRAVIS_TAG ]]; then
+    python setup.py sdist;
+  fi
+after_success:
+- codecov -e $PYVER
+tags: true

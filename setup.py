@@ -47,6 +47,6 @@ setup(
     packages=find_packages(exclude=["demos"]),
     install_requires=REQUIREMENTS,
     entry_points={
-        "console_scripts": ["serpentine=serpentine.serpentine:main"]
+        "console_scripts": ["serpentine=serpentine.serpentine:_main"]
     },
 )
