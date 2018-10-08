@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 """Serpentine binning
 
@@ -7,7 +8,7 @@ in Scolari et al.
 
 Usage:
     serpentine.py <matrixA> <matrixB> [--threshold=10] [--min-threshold=1]
-                                      [--test] [--test-size]
+                                      [--test] [--test-size=500]
 
 Options:
     -h, --help                      Display this help message.
@@ -18,8 +19,18 @@ Options:
                                     either matrix. [default: 1]
     --test                          Run a demo on randomly generated matrices.
     --test-size 500                 Size of the test matrix for the demo.
-                                    [default: 300]
+                                    [default: 500]
 """
+
+__author__ = "Cluster Buster (scovit, a.k.a. Vittore F. Scolari), \
+              Lyamovich (baudrly, a.k.a. Lyam Baudry"
+__copyright__ = "Copyright © 2017-2018, Institut Pasteur, Paris, France"
+__credits__ = ["Cluster Buster", "Lyamvich"]
+__license__ = "Artistic"
+__version__ = "1.0"
+__maintainer__ = "Cluster Buster"
+__email__ = "vittore.scolari@gmail.com"
+__status__ = "Production"
 
 import numpy as _np
 import pandas as _pd
@@ -36,8 +47,6 @@ DEFAULT_MIN_THRESHOLD = 10
 DEFAULT_THRESHOLD = 40
 DEFAULT_ITERATIONS = 10
 DEFAULT_SIZE = 300
-
-VERSION_NUMBER = "0.1a"
 
 
 def serpentin_iteration(
@@ -585,7 +594,7 @@ def _test(
 
 def _main():
 
-    arguments = _doc.docopt(__doc__, version=VERSION_NUMBER)
+    arguments = _doc.docopt(__doc__, version=__version__)
 
     inputA = arguments["<matrixA>"]
     inputB = arguments["<matrixB>"]
