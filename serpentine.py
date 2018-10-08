@@ -23,7 +23,7 @@ Options:
 """
 
 __author__ = "Cluster Buster (scovit, a.k.a. Vittore F. Scolari), \
-              Lyamovich (baudrly, a.k.a. Lyam Baudry"
+              Lyamovich (baudrly, a.k.a. Lyam Baudry)"
 __copyright__ = "Copyright © 2017-2018, Institut Pasteur, Paris, France"
 __credits__ = ["Cluster Buster", "Lyamvich"]
 __license__ = "Artistic"
