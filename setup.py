@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 """Serpentine binning package for Hi-C contact maps
 """
@@ -10,7 +10,7 @@ CLASSIFIERS = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "License :: OSI Approved :: Artistic License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.6",
     "Topic :: Scientific/Engineering",
@@ -29,7 +29,7 @@ MINOR = 1
 MAINTENANCE = 0
 VERSION = f"{MAJOR}.{MINOR}.{MAINTENANCE}"
 
-LICENSE = "GPLv3"
+LICENSE = "Artistic"
 
 with open("requirements.txt", "r") as f:
     REQUIREMENTS = f.read().splitlines()
