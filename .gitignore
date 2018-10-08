@@ -68,13 +68,9 @@ instance/
 docs/_build/
 docs/_static/
 docs/_templates/
-docs/make.bat
-docs/Makefile
 doc/_build/
 doc/_static/
 doc/_templates/
-doc/make.bat
-doc/Makefile
 
 # PyBuilder
 target/
