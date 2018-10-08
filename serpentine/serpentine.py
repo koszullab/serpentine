@@ -6,21 +6,23 @@
 An implementation of the so-called 'serpentine binning' procedure described
 in Scolari et al.
 
-Usage:
-    serpentine.py <matrixA> <matrixB> [--threshold=10] [--min-threshold=1]
-                                      [--demo] [--demo-size=500]
+Command line::
 
-Options:
-    -h, --help                      Display this help message.
-    --version                       Display the program's current version.
-    -t 10, --threshold 10           Threshold value to trigger binning.
-                                    [default: 10]
-    -m 1, --min-threshold 1         Minimum value to force trigger binning in
-                                    either matrix. [default: 1]
-    --demo                          Run a demo on randomly generated matrices.
-                                    [default: False]
-    --demo-size 500                 Size of the test matrix for the demo.
-                                    [default: 500]
+    Usage:
+        serpentine.py <matrixA> <matrixB> [--threshold=10] [--min-threshold=1]
+                                        [--demo] [--demo-size=500]
+
+    Options:
+        -h, --help                      Display this help message.
+        --version                       Display the program's current version.
+        -t 10, --threshold 10           Threshold value to trigger binning.
+                                        [default: 10]
+        -m 1, --min-threshold 1         Minimum value to force trigger binning
+                                        in either matrix. [default: 1]
+        --demo                          Run a demo on randomly generated
+                                        matrices. [default: False]
+        --demo-size 500                 Size of the test matrix for the demo.
+                                        [default: 500]
 """
 
 import numpy as _np
@@ -33,7 +35,7 @@ import warnings as _warns
 from random import choice as _choice
 import multiprocessing as _mp
 from datetime import datetime as _datetime
-
+from .version import __version__
 
 DEFAULT_MIN_THRESHOLD = 10
 DEFAULT_THRESHOLD = 40
