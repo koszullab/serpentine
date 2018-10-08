@@ -1,6 +1,6 @@
 # Serpentine binning tutorial
 
-This tutorial aims at demonstrating use cases and for improving Hi-C contact maps with distribution-aware binning, helping readers reproduce the steps in Scolari et al., 2018 and documenting readers with the implementation. For a detailed step-by-step analysis, see the [serpentine notebook](https://github.com/koszullab/serpentine/notebook).
+This tutorial aims at demonstrating use cases and for improving Hi-C contact maps with distribution-aware binning, helping readers reproduce the steps in Scolari et al., 2018 and documenting readers with the implementation. For a detailed step-by-step analysis, see the [serpentine notebook](notebooks/demo_yeast.ipynb).
 
 ## Dependencies
 
