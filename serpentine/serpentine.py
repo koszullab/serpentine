@@ -8,7 +8,7 @@ in Scolari et al.
 
 Usage:
     serpentine.py <matrixA> <matrixB> [--threshold=10] [--min-threshold=1]
-                                      [--test] [--test-size=500]
+                                      [--demo] [--demo-size=500]
 
 Options:
     -h, --help                      Display this help message.
@@ -17,9 +17,9 @@ Options:
                                     [default: 10]
     -m 1, --min-threshold 1         Minimum value to force trigger binning in
                                     either matrix. [default: 1]
-    --test                          Run a demo on randomly generated matrices.
+    --demo                          Run a demo on randomly generated matrices.
                                     [default: False]
-    --test-size 500                 Size of the test matrix for the demo.
+    --demo-size 500                 Size of the test matrix for the demo.
                                     [default: 500]
 """
 
@@ -33,7 +33,6 @@ import warnings as _warns
 from random import choice as _choice
 import multiprocessing as _mp
 from datetime import datetime as _datetime
-import version
 
 __author__ = "Cluster Buster (scovit, a.k.a. Vittore F. Scolari), \
               Lyamovich (baudrly, a.k.a. Lyam Baudry)"
@@ -43,7 +42,6 @@ __license__ = "Artistic"
 __maintainer__ = "Cluster Buster"
 __email__ = "vittore.scolari@pasteur.fr"
 __status__ = "Pre-Alpha"
-__version__ = version.__version__
 
 DEFAULT_MIN_THRESHOLD = 10
 DEFAULT_THRESHOLD = 40
@@ -565,7 +563,7 @@ def _plot(U, V, W):
     _plt.show()
 
 
-def _test(
+def _demo(
     threshold=DEFAULT_THRESHOLD,
     minthreshold=DEFAULT_MIN_THRESHOLD,
     size=DEFAULT_SIZE,
@@ -602,11 +600,11 @@ def _main():
     inputB = arguments["<matrixB>"]
     threshold = int(arguments["--threshold"])
     minthreshold = int(arguments["--min-threshold"])
-    size = int(arguments["--test-size"])
-    is_test = int(arguments["--test"])
+    size = int(arguments["--demo-size"])
+    is_demo = int(arguments["--demo"])
 
-    if is_test:
-        _test(threshold=threshold, minthreshold=minthreshold, size=size)
+    if is_demo:
+        _demo(threshold=threshold, minthreshold=minthreshold, size=size)
 
     elif inputA and inputB:
         A = fromupdiag(inputA)
