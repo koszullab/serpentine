@@ -9,8 +9,15 @@ in Scolari et al.
 Command line::
 
     Usage:
-        serpentine.py <matrixA> <matrixB> [--threshold=10] [--min-threshold=1]
-                                        [--demo] [--demo-size=500]
+        serpentine.py [<matrixA>] [<matrixB>] [--threshold=10]
+                      [--min-threshold=1] [--demo] [--demo-size=500]
+
+    Arguments:
+        matrixA                         The first input matrix, in plain text
+                                        CSV format. Optional in demo mode.
+        matrixB                         The second input matrix, in plain text
+                                        CSV format. Optional in demo mode or
+                                        single binning mode.
 
     Options:
         -h, --help                      Display this help message.
