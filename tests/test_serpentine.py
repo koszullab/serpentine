@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 import serpentine as serp
 
-SIZE_PARAMETERS = ("matrix_size", [20, 50, 100])
+SIZE_PARAMETERS = ("matrix_size", [5, 10, 20, 50, 100])
 
 
 @pytest.mark.parametrize(*SIZE_PARAMETERS)

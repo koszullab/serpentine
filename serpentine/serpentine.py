@@ -209,7 +209,10 @@ def serpentin_iteration(
                 thresh = a < threshold and b < threshold
                 minthresh = a < minthreshold or b < minthreshold
                 if thresh or minthresh:
-                    min_neigh = _choice(tuple(neighs[serp]))
+                    try:
+                        min_neigh = _choice(tuple(neighs[serp]))
+                    except IndexError:
+                        break
 
                     # Merge pixels
                     pixels[serp] = _np.concatenate(
