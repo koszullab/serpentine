@@ -48,7 +48,7 @@ def test_total_smearing(matrix_size):
 @pytest.mark.parametrize(*SIZE_PARAMETERS)
 def test_no_binning(matrix_size):
     """Test if the matrices are not binned at all if the threshold value is
-    lower than or equal to their minimum value.    
+    lower than or equal to their minimum value.
     """
     inputA = np.random.random((matrix_size, matrix_size))
     inputB = np.random.random((matrix_size, matrix_size))

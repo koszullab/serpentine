@@ -9,7 +9,7 @@ in Scolari et al.
 Command line::
 
     Usage:
-        serpentine.py [<matrixA>] [<matrixB>] [--threshold=10]
+        serpentine.py [<matrixA>] [<matrixB>] [--threshold=10] [--verbose]
                       [--min-threshold=1] [--demo] [--demo-size=500]
 
     Arguments:
@@ -30,6 +30,7 @@ Command line::
                                         matrices. [default: False]
         --demo-size 500                 Size of the test matrix for the demo.
                                         [default: 500]
+        -v, --verbose                   Show verbose output. [default: True]
 """
 
 import numpy as _np
@@ -48,6 +49,20 @@ DEFAULT_MIN_THRESHOLD = 10
 DEFAULT_THRESHOLD = 40
 DEFAULT_ITERATIONS = 10
 DEFAULT_SIZE = 300
+
+ASCII_SNAKE = """
+
+                            Serpentine binning
+
+        .';.;olc:'
+    ;xOOOxkOkkkkkl.
+        ...';lxOOOO;            ,cooc,                 ...
+                .lk00o        .lkolllllxc.           'okxdxxd:.
+                    ;dK0d:,,;cxOl:'......:dd;..   ..cxo,......:ld,
+                    .c0XXKKKKd;;.        .;x0K00000o,.         .:xo,.
+                    ..oxkxd:,;.           .,clooc'              .;oOOxoooxo
+                        ...'.                                       .',;;,.
+"""
 
 
 def serpentin_iteration(
@@ -356,11 +371,12 @@ def serpentin_binning(
     sB = _np.zeros_like(A)
 
     if parallel > 1:
-        print(
-            "Starting {} binning processes in batches of {}...".format(
-                iterations, parallel
+        if verbose:
+            print(
+                "Starting {} binning processes in batches of {}...".format(
+                    iterations, parallel
+                )
             )
-        )
         p = _mp.Pool(parallel)
         iterator = (
             (A, B, threshold, minthreshold, triangular, verbose)
@@ -375,11 +391,12 @@ def serpentin_binning(
             sB = sB + Bt
 
     else:
-        print(
-            "{} Starting {} binning processes...".format(
-                _datetime.now(), iterations
+        if verbose:
+            print(
+                "{} Starting {} binning processes...".format(
+                    _datetime.now(), iterations
+                )
             )
-        )
         for _ in range(iterations):
             At, Bt, Kt = serpentin_iteration(
                 A,
@@ -821,11 +838,14 @@ def _main():
     minthreshold = int(arguments["--min-threshold"])
     size = int(arguments["--demo-size"])
     is_demo = int(arguments["--demo"])
+    verbose = arguments["--verbose"]
 
     if is_demo:
+        print(ASCII_SNAKE)
         _demo(threshold=threshold, minthreshold=minthreshold, size=size)
 
     elif inputA and inputB:
+        print(ASCII_SNAKE)
         A = fromupdiag(inputA)
         B = fromupdiag(inputB)
         A = A + A.T - _np.diag(_np.diag(A))
@@ -836,6 +856,7 @@ def _main():
             threshold=threshold,
             minthreshold=minthreshold,
             triangular=True,
+            verbose=verbose,
         )
         _plot(U, V, W)
 
