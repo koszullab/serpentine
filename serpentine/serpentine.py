@@ -30,7 +30,7 @@ Command line::
                                         matrices. [default: False]
         --demo-size 500                 Size of the test matrix for the demo.
                                         [default: 500]
-        -v, --verbose                   Show verbose output. [default: True]
+        -v, --verbose                   Show verbose output. [default: False]
 """
 
 import numpy as _np
