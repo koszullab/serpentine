@@ -33,6 +33,7 @@ Command line::
         -v, --verbose                   Show verbose output. [default: False]
 """
 
+import sys
 import numpy as _np
 import pandas as _pd
 import docopt as _doc
@@ -43,7 +44,11 @@ import warnings as _warns
 from random import choice as _choice
 import multiprocessing as _mp
 from datetime import datetime as _datetime
-from .version import __version__
+
+try:
+    from .version import __version__
+except ModuleNotFoundError:
+    from version import __version__
 
 DEFAULT_MIN_THRESHOLD = 10
 DEFAULT_THRESHOLD = 40
@@ -63,6 +68,8 @@ ASCII_SNAKE = """
                     ..oxkxd:,;.           .,clooc'              .;oOOxoooxo
                         ...'.                                       .',;;,.
 """
+
+sys.stdout = sys.stderr
 
 
 def serpentin_iteration(
@@ -803,6 +810,7 @@ def _demo(
     threshold=DEFAULT_THRESHOLD,
     minthreshold=DEFAULT_MIN_THRESHOLD,
     size=DEFAULT_SIZE,
+    verbose=True,
 ):
 
     """Perform binning on a random matrix
@@ -824,6 +832,7 @@ def _demo(
         minthreshold=minthreshold,
         parallel=4,
         triangular=True,
+        verbose=verbose,
     )
     _plot(U, V, W)
 
@@ -843,13 +852,25 @@ def _main():
     if is_demo:
         if verbose:
             print(ASCII_SNAKE)
-        _demo(threshold=threshold, minthreshold=minthreshold, size=size)
+        _demo(
+            threshold=threshold,
+            minthreshold=minthreshold,
+            size=size,
+            verbose=verbose,
+        )
 
     elif inputA and inputB:
         if verbose:
             print(ASCII_SNAKE)
-        A = fromupdiag(inputA)
-        B = fromupdiag(inputB)
+        try:
+            A = fromupdiag(inputA)
+            B = fromupdiag(inputB)
+        except OSError:
+            print(
+                "Error when processing {} or {}, please check that the files "
+                "exist with reading permissions and that they have the correct"
+                " format."
+            )
         A = A + A.T - _np.diag(_np.diag(A))
         B = B + B.T - _np.diag(_np.diag(B))
         U, V, W = serpentin_binning(
@@ -861,6 +882,13 @@ def _main():
             verbose=verbose,
         )
         _plot(U, V, W)
+
+    else:
+        print(
+            "Error: there must be either two matrix files as inputs (in csv "
+            "format) as arguments or the --demo flag must be supplied.\n"
+            "See 'serpentine --help' for a list of all options and arguments."
+        )
 
 
 if __name__ == "__main__":
