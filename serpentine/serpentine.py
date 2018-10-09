@@ -841,11 +841,13 @@ def _main():
     verbose = arguments["--verbose"]
 
     if is_demo:
-        print(ASCII_SNAKE)
+        if verbose:
+            print(ASCII_SNAKE)
         _demo(threshold=threshold, minthreshold=minthreshold, size=size)
 
     elif inputA and inputB:
-        print(ASCII_SNAKE)
+        if verbose:
+            print(ASCII_SNAKE)
         A = fromupdiag(inputA)
         B = fromupdiag(inputB)
         A = A + A.T - _np.diag(_np.diag(A))
