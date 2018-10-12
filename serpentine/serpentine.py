@@ -801,19 +801,6 @@ def fromupdiag(filename):
 
 def _plot(U, V, W, cmap=None, triangular=triangular):
 
-    if cmap is None:
-        colors = [
-            (120. / 350, 180. / 350, 230. / 350),
-            (179. / 255, 205. / 255, 227. / 255),
-            (1, 1, 1),
-            (251. / 255, 180. / 255, 174. / 255),
-            (248. / 350, 120. / 350, 109. / 350),
-        ]
-        cmap_name = "pastelpentine"
-        cm = _cols.LinearSegmentedColormap.from_list(cmap_name, colors, N=13)
-    else:
-        cm = cmap
-
     fig = _plt.figure()
 
     ax1 = fig.add_subplot(2, 2, 1)
