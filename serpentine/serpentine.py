@@ -799,7 +799,7 @@ def fromupdiag(filename):
     return result
 
 
-def _plot(U, V, W, cmap=None, triangular=triangular):
+def _plot(U, V, W, cmap=None, triangular=False):
 
     fig = _plt.figure()
 
@@ -878,10 +878,9 @@ def _main():
     if minthreshold != "auto":
         minthreshold = int(minthreshold)
     if trend != "mean" and trend != "high":
-        print("--trend option accepts only \"mean\" or \"high\" values");
+        print('--trend option accepts only "mean" or "high" values')
         return
 
- 
     if is_demo:
         if verbose:
             print(ASCII_SNAKE)
@@ -914,14 +913,14 @@ def _main():
                 return
 
         if threshold == "auto" or minthreshold == "auto" or trend == "high":
-            mdthreshold, mdtrend = MDbefore(XA, XB, s=10,
-                                            triangular=triangular,
-                                            show=False)
+            mdthreshold, mdtrend = MDbefore(
+                XA, XB, s=10, triangular=triangular, show=False
+            )
         if threshold == "auto":
             threshold = mdthreshold
         if minthreshold == "auto":
             minthreshold = threshold / 5
-        if trend == "high"
+        if trend == "high":
             trend = mdtrend
 
         U, V, W = serpentin_binning(
@@ -937,10 +936,13 @@ def _main():
                 trend = _np.mean(W[trili])
             else:
                 trend = _np.mean(W)
-        
-        _plot(A, B,
-              _np.log2(B / A) - _np.log2(_np.mean(B) / _np.mean(A)),
-              triangular=triangular)
+
+        _plot(
+            A,
+            B,
+            _np.log2(B / A) - _np.log2(_np.mean(B) / _np.mean(A)),
+            triangular=triangular,
+        )
         _plot(U, V, W - trend, triangular=triangular)
         _plt.show()
 
