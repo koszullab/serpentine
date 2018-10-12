@@ -686,7 +686,7 @@ def MDafter(
     return _madplot(ACmean, ACdiff, s, xlim, ylim, showthr=False, show=show)
 
 
-def dshow(dif, trend, limit, triangular=False):
+def dshow(dif, trend, limit, triangular=False, cmap=None):
 
     """Show differential matrix
 
@@ -707,15 +707,21 @@ def dshow(dif, trend, limit, triangular=False):
         Set triangular if you are interested in rebin only half of the
         matrix (for instance in the case of matrices which are
         already triangular, default is false)
+    cmap: str, optional
+        Color map of the plotted matrix. Should be ideally diverging, default
+        is sesismic.
 
     Returns
     -------
     The plot
     """
 
-    colors = [(0, 0, .5), (0, 0, 1), (1, 1, 1), (1, 0, 0), (.5, 0, 0)]
-    cmap_name = "my_list"
-    cm = _cols.LinearSegmentedColormap.from_list(cmap_name, colors, N=64)
+    if cmap is None:
+        colors = [(0, 0, .5), (0, 0, 1), (1, 1, 1), (1, 0, 0), (.5, 0, 0)]
+        cmap_name = "pastelpentine"
+        cm = _cols.LinearSegmentedColormap.from_list(cmap_name, colors, N=13)
+    else:
+        cm = cmap
 
     if triangular:
         trili = _np.tril_indices(_np.int(_np.sqrt(dif.size)))

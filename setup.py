@@ -46,6 +46,7 @@ setup(
     classifiers=CLASSIFIERS,
     packages=find_packages(exclude=["demos"]),
     install_requires=REQUIREMENTS,
+    include_package_data=True,
     entry_points={
         "console_scripts": ["serpentine=serpentine.serpentine:_main"]
     },
