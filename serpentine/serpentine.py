@@ -10,7 +10,7 @@ Command line::
 
     Usage:
         serpentine.py [<matrixA>] [<matrixB>] [--threshold=auto] [--verbose]
-                      [--min-threshold=1] [--trend=mean] [--triangular]
+                      [--min-threshold=auto] [--trend=mean] [--triangular]
                       [--demo] [--demo-size=500]
 
     Arguments:
@@ -23,18 +23,19 @@ Command line::
     Options:
         -h, --help                      Display this help message.
         --version                       Display the program's current version.
-        -t auto, --threshold=auto       Threshold value to trigger binning.
+        -t auto, --threshold auto       Threshold value to trigger binning.
                                         [default: auto]
-        -m auto, --min-threshold=auto   Minimum value to force trigger binning
+        -m auto, --min-threshold auto   Minimum value to force trigger binning
                                         in either matrix. [default: auto]
         --trend=mean                    Trend to subtract to the differential
-                                        matrix, possible values are "mean": take
+                                        matrix, possible values are "mean":
                                         equal amount of positive and negative
                                         differences, and "high": normalize
                                         at the regions with higher coverage.
+                                        [default: mean]
         --triangular                    Treat the matrix as triangular,
                                         useful when plotting matrices adjacent
-                                        to the diagonal. [default: false]
+                                        to the diagonal. [default: False]
         --demo                          Run a demo on randomly generated
                                         matrices. [default: False]
         --demo-size 500                 Size of the test matrix for the demo.
@@ -53,16 +54,19 @@ import warnings as _warns
 from random import choice as _choice
 import multiprocessing as _mp
 from datetime import datetime as _datetime
+import warnings
+
+warnings.filterwarnings(action="ignore")
 
 try:
     from .version import __version__
 except ModuleNotFoundError:
     from version import __version__
 
-DEFAULT_MIN_THRESHOLD = 10
-DEFAULT_THRESHOLD = 40
-DEFAULT_ITERATIONS = 10
-DEFAULT_SIZE = 300
+DEFAULT_MIN_THRESHOLD = 10.
+DEFAULT_THRESHOLD = 50.
+DEFAULT_ITERATIONS = 10.
+DEFAULT_SIZE = 300.
 
 ASCII_SNAKE = """
 
@@ -141,6 +145,7 @@ def serpentin_iteration(
     try:
         assert minthreshold < threshold
     except AssertionError:
+
         raise ValueError("Minimal threshold should be lower than maximal")
 
     def pixel_neighs_triangular(i, j, size):
@@ -374,7 +379,6 @@ def serpentin_binning(
             assert len(A.shape) == 2
         except AssertionError:
             raise ValueError("Matrices must have identical shape")
-
     try:
         assert minthreshold < threshold
     except AssertionError:
@@ -573,10 +577,7 @@ def _madplot(
         xa = _np.percentile(ACmean[ACmean > 0], 99)
 
     if _np.isnan(xa) or _np.isinf(xa) or xa < _np.log2(25.):
-        print("Could not set a good threshold, your data is probably awful")
-        print("Good that you use serpentine!")
-        print("Choosing 25 as a threshold, please finetune it by hand")
-        xa = _np.log2(25.)
+        xa = _np.log2(DEFAULT_THRESHOLD)
 
     if showthr and show:
         _plt.axvline(x=xa)
@@ -824,7 +825,7 @@ def _plot(U, V, W, cmap=None, triangular=False):
     _plt.colorbar(im2)
 
     ax3 = fig.add_subplot(2, 2, 3)
-    dshow(W, 0, limit=3, triangular=triangular, cmap=None, ax=ax3)
+    dshow(W, 0, limit=3, triangular=triangular, cmap=cmap, ax=ax3)
 
 
 def _demo(
@@ -832,6 +833,7 @@ def _demo(
     minthreshold=DEFAULT_MIN_THRESHOLD,
     size=DEFAULT_SIZE,
     triangular=True,
+    trend="mean",
     verbose=True,
 ):
 
@@ -847,6 +849,18 @@ def _demo(
     B = _np.random.random((size, size)) * 10
     A = A + A.T
     B = B + B.T
+
+    if threshold == "auto" or trend == "high":
+        mdthreshold, mdtrend = MDbefore(
+            A, B, s=10, triangular=triangular, show=False
+        )
+    if threshold == "auto":
+        threshold = mdthreshold
+    if minthreshold == "auto":
+        minthreshold = threshold / 5.
+    if trend == "high":
+        trend = mdtrend
+
     U, V, W = serpentin_binning(
         A,
         B,
@@ -857,6 +871,7 @@ def _demo(
         verbose=verbose,
     )
     _plot(U, V, W)
+    _plt.show()
 
 
 def _main():
@@ -878,7 +893,7 @@ def _main():
     if minthreshold != "auto":
         minthreshold = int(minthreshold)
     if trend != "mean" and trend != "high":
-        print('--trend option accepts only "mean" or "high" values')
+        print('Error! The --trend option accepts only "mean" or "high" values')
         return
 
     if is_demo:
@@ -890,6 +905,7 @@ def _main():
             size=size,
             triangular=triangular,
             verbose=verbose,
+            trend=trend,
         )
 
     elif inputA and inputB:
@@ -906,20 +922,20 @@ def _main():
             except Exception as e:
                 print(e)
                 print(
-                    "Error when processing {} or {}, please check that the files "
-                    "exist with reading permissions and that they have the correct"
-                    " format.".format(inputA, inputB)
+                    "Error when processing {} or {}, please check that the "
+                    "files exist with reading permissions and that they have "
+                    "the correct format.".format(inputA, inputB)
                 )
                 return
 
-        if threshold == "auto" or minthreshold == "auto" or trend == "high":
-            mdthreshold, mdtrend = MDbefore(
-                XA, XB, s=10, triangular=triangular, show=False
+        if threshold == "auto" or trend == "high":
+            mdtrend, mdthreshold = MDbefore(
+                A, B, s=10, triangular=triangular, show=False
             )
         if threshold == "auto":
             threshold = mdthreshold
         if minthreshold == "auto":
-            minthreshold = threshold / 5
+            minthreshold = threshold / 5.
         if trend == "high":
             trend = mdtrend
 
@@ -928,11 +944,12 @@ def _main():
             B,
             threshold=threshold,
             minthreshold=minthreshold,
-            triangular=True,
+            triangular=triangular,
             verbose=verbose,
         )
         if trend == "mean":
             if triangular:
+                trili = _np.tril_indices(_np.int(_np.sqrt(W.size)))
                 trend = _np.mean(W[trili])
             else:
                 trend = _np.mean(W)
