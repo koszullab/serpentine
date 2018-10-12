@@ -788,7 +788,20 @@ def fromupdiag(filename):
     return result
 
 
-def _plot(U, V, W):
+def _plot(U, V, W, cmap=None):
+
+    if cmap is None:
+        colors = [
+            (120. / 350, 180. / 350, 230. / 350),
+            (179. / 255, 205. / 255, 227. / 255),
+            (1, 1, 1),
+            (251. / 255, 180. / 255, 174. / 255),
+            (248. / 350, 120. / 350, 109. / 350),
+        ]
+        cmap_name = "pastelpentine"
+        cm = _cols.LinearSegmentedColormap.from_list(cmap_name, colors, N=13)
+    else:
+        cm = cmap
 
     fig = _plt.figure()
 
@@ -813,9 +826,8 @@ def _plot(U, V, W):
     _plt.colorbar(im2)
 
     ax3 = fig.add_subplot(2, 2, 3)
-    im3 = ax3.imshow(W, interpolation="none", cmap="seismic", clim=(-3, 3))
+    im3 = ax3.imshow(W, interpolation="none", cmap=cm, clim=(-3, 3))
     _plt.colorbar(im3)
-    _plt.show()
 
 
 def _demo(
@@ -877,12 +889,18 @@ def _main():
         try:
             A = fromupdiag(inputA)
             B = fromupdiag(inputB)
-        except OSError:
-            print(
-                "Error when processing {} or {}, please check that the files "
-                "exist with reading permissions and that they have the correct"
-                " format."
-            )
+        except Exception:
+            try:
+                A = _np.loadtxt(inputA)
+                B = _np.loadtxt(inputB)
+            except Exception as e:
+                print(e)
+                print(
+                    "Error when processing {} or {}, please check that the files "
+                    "exist with reading permissions and that they have the correct"
+                    " format.".format(inputA, inputB)
+                )
+                return
         A = A + A.T - _np.diag(_np.diag(A))
         B = B + B.T - _np.diag(_np.diag(B))
         U, V, W = serpentin_binning(
@@ -893,7 +911,9 @@ def _main():
             triangular=True,
             verbose=verbose,
         )
-        _plot(U, V, W)
+        _plot(A, B, _np.log2(B / A) - _np.log2(_np.mean(B) / _np.mean(A)))
+        _plot(U, V, (W + W.T) / 2)
+        _plt.show()
 
     else:
         print(
