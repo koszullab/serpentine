@@ -717,7 +717,13 @@ def dshow(dif, trend, limit, triangular=False, cmap=None):
     """
 
     if cmap is None:
-        colors = [(0, 0, .5), (0, 0, 1), (1, 1, 1), (1, 0, 0), (.5, 0, 0)]
+        colors = [
+            (120. / 350, 180. / 350, 230. / 350),
+            (179. / 255, 205. / 255, 227. / 255),
+            (1, 1, 1),
+            (251. / 255, 180. / 255, 174. / 255),
+            (248. / 350, 120. / 350, 109. / 350),
+        ]
         cmap_name = "pastelpentine"
         cm = _cols.LinearSegmentedColormap.from_list(cmap_name, colors, N=13)
     else:
