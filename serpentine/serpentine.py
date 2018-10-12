@@ -10,7 +10,7 @@ Command line::
 
     Usage:
         serpentine.py [<matrixA>] [<matrixB>] [--threshold=auto] [--verbose]
-                      [--min-threshold=auto] [--trend=mean] [--triangular]
+                      [--min-threshold=auto] [--trend=high] [--triangular]
                       [--demo] [--demo-size=500]
 
     Arguments:
@@ -27,12 +27,12 @@ Command line::
                                         [default: auto]
         -m auto, --min-threshold auto   Minimum value to force trigger binning
                                         in either matrix. [default: auto]
-        --trend=mean                    Trend to subtract to the differential
+        --trend high                    Trend to subtract to the differential
                                         matrix, possible values are "mean":
                                         equal amount of positive and negative
                                         differences, and "high": normalize
                                         at the regions with higher coverage.
-                                        [default: mean]
+                                        [default: high]
         --triangular                    Treat the matrix as triangular,
                                         useful when plotting matrices adjacent
                                         to the diagonal. [default: False]
