@@ -10,8 +10,8 @@ Command line::
 
     Usage:
         serpentine.py [<matrixA>] [<matrixB>] [--threshold=auto] [--verbose]
-                      [--min-threshold=auto] [--trend=mean] [--triangular]
-                      [--demo] [--demo-size=500]
+                      [--min-threshold=auto] [--trend=high] [--triangular]
+                      [--limit=3] [--demo] [--demo-size=500]
 
     Arguments:
         matrixA                         The first input matrix, in plain text
@@ -27,15 +27,18 @@ Command line::
                                         [default: auto]
         -m auto, --min-threshold auto   Minimum value to force trigger binning
                                         in either matrix. [default: auto]
-        --trend=mean                    Trend to subtract to the differential
+        --trend high                    Trend to subtract to the differential
                                         matrix, possible values are "mean":
                                         equal amount of positive and negative
                                         differences, and "high": normalize
                                         at the regions with higher coverage.
-                                        [default: mean]
+                                        [default: high]
         --triangular                    Treat the matrix as triangular,
                                         useful when plotting matrices adjacent
                                         to the diagonal. [default: False]
+        --limit 3                       Set the z-axis limit on the
+                                        plot of the differential matrix.
+                                        [default: 3]
         --demo                          Run a demo on randomly generated
                                         matrices. [default: False]
         --demo-size 500                 Size of the test matrix for the demo.
@@ -54,14 +57,10 @@ import warnings as _warns
 from random import choice as _choice
 import multiprocessing as _mp
 from datetime import datetime as _datetime
-import warnings
+from serpentine.version import __version__
 
-warnings.filterwarnings(action="ignore")
 
-try:
-    from .version import __version__
-except ModuleNotFoundError:
-    from version import __version__
+_warns.filterwarnings(action="ignore")
 
 DEFAULT_MIN_THRESHOLD = 10.
 DEFAULT_THRESHOLD = 50.
@@ -800,7 +799,7 @@ def fromupdiag(filename):
     return result
 
 
-def _plot(U, V, W, cmap=None, triangular=False):
+def _plot(U, V, W, cmap=None, triangular=False, limit=3):
 
     fig = _plt.figure()
 
@@ -825,7 +824,7 @@ def _plot(U, V, W, cmap=None, triangular=False):
     _plt.colorbar(im2)
 
     ax3 = fig.add_subplot(2, 2, 3)
-    dshow(W, 0, limit=3, triangular=triangular, cmap=cmap, ax=ax3)
+    dshow(W, 0, limit=limit, triangular=triangular, cmap=cmap, ax=ax3)
 
 
 def _demo(
@@ -833,6 +832,7 @@ def _demo(
     minthreshold=DEFAULT_MIN_THRESHOLD,
     size=DEFAULT_SIZE,
     triangular=True,
+    limit=3,
     trend="mean",
     verbose=True,
 ):
@@ -870,7 +870,7 @@ def _demo(
         triangular=triangular,
         verbose=verbose,
     )
-    _plot(U, V, W)
+    _plot(U, V, W, triangular=triangular, limit=limit)
     _plt.show()
 
 
@@ -884,6 +884,7 @@ def _main():
     minthreshold = arguments["--min-threshold"]
     size = int(arguments["--demo-size"])
     triangular = arguments["--triangular"]
+    limit = int(arguments["--limit"])
     trend = arguments["--trend"]
     is_demo = int(arguments["--demo"])
     verbose = arguments["--verbose"]
@@ -904,6 +905,7 @@ def _main():
             minthreshold=minthreshold,
             size=size,
             triangular=triangular,
+            limit=limit,
             verbose=verbose,
             trend=trend,
         )
@@ -959,8 +961,9 @@ def _main():
             B,
             _np.log2(B / A) - _np.log2(_np.mean(B) / _np.mean(A)),
             triangular=triangular,
+            limit=limit,
         )
-        _plot(U, V, W - trend, triangular=triangular)
+        _plot(U, V, W - trend, triangular=triangular, limit=limit)
         _plt.show()
 
     else:

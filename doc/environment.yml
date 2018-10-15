@@ -1,0 +1,5 @@
+name: serpentine
+dependencies:
+  - notebook
+  - sphinx
+  - nbsphinx
