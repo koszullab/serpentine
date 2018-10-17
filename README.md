@@ -5,6 +5,7 @@
 
 [![Build Status](https://travis-ci.org/koszullab/serpentine.svg?branch=master)](https://travis-ci.org/koszullab/serpentine)
 [![Read the docs](https://readthedocs.org/projects/serpentine/badge/?style=plastic)](https://serpentine.readthedocs.io)
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/koszullab/serpentine/master?filepath=notebooks%2Fdemo_yeast.ipynb)
 [![License: Artistic-1.0](https://img.shields.io/badge/License-Artistic%201.0-0298c3.svg)](https://opensource.org/licenses/Artistic-1.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
