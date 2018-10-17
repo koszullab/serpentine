@@ -57,14 +57,10 @@ import warnings as _warns
 from random import choice as _choice
 import multiprocessing as _mp
 from datetime import datetime as _datetime
-import warnings
+from serpentine.version import __version__
 
-warnings.filterwarnings(action="ignore")
 
-try:
-    from .version import __version__
-except ModuleNotFoundError:
-    from version import __version__
+_warns.filterwarnings(action="ignore")
 
 DEFAULT_MIN_THRESHOLD = 10.
 DEFAULT_THRESHOLD = 50.

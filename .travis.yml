@@ -1,23 +1,17 @@
 language: python
+python:
+  - "3.4"
+  - "3.5"
+  - "3.6"
 env:
-  matrix:
-  - PYVER="3.6"
   global:
   - PROJECT_NAME=serpentine
-  - GITHUB_REPO_NAME=axelcournac/serpentin
-  - secure:
+  - GITHUB_REPO_NAME=koszullab/serpentine
 os:
 - linux
-- osx
-before_install:
-- |
-  if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    mkdir $HOME/.matplotlib;
-    echo "backend : TkAgg" >> $HOME/.matplotlib/matplotlibrc
-  fi;
 install:
 - pip install -r requirements.txt
-- pip install pytest pylint pytest-cov
+- pip install pytest pylint pytest-cov pytest-pylint
 - python setup.py install
 script:
 - pytest --pylint --pylint-error-types=EF serpentine
