@@ -699,7 +699,7 @@ def MDafter(
     return _madplot(ACmean, ACdiff, s, xlim, ylim, showthr=False, show=show)
 
 
-def dshow(dif, trend, limit, triangular=False, cmap=None, ax=_plt):
+def dshow(dif, trend, limit=3, triangular=False, cmap=None, ax=_plt):
 
     """Show differential matrix
 
@@ -713,9 +713,9 @@ def dshow(dif, trend, limit, triangular=False, cmap=None, ax=_plt):
     trend : float
         The value of the zero, please use either the output of
         MDbefore function or the value of md.mean(dif)
-    limit : float
+    limit : float, optional
         The colorscale limit of the log-ratio, setting it to 2 or 3
-        seems like a sensible choice.
+        seems like a sensible choice. Defaults to 3
     triangular : bool, optional
         Set triangular if you are interested in rebin only half of the
         matrix (for instance in the case of matrices which are
