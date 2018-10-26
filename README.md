@@ -33,7 +33,8 @@ Locally smearing noisy regions in Hi-C contact maps as a prelude to differential
 
 ## Documentation
 
-Please read the documentation on [readthedocs website](https://serpentine.readthedocs.io/en/latest/)
+Executing the command `serpentine  --help` will give you a brief help of the command line tool. For a detailed reference to the python library functions, please 
+read the documentation on [readthedocs website](https://serpentine.readthedocs.io/en/latest/)
 
 ## Authors
 
