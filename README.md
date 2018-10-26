@@ -12,6 +12,25 @@
 
 Locally smearing noisy regions in Hi-C contact maps as a prelude to differential analyses
 
+## Synopsis
+
+```python
+   import numpy as np
+   import serpentine as sp
+
+   A = np.loadtxt('./demos/A.csv')
+   B = np.loadtxt('./demos/B.csv')
+   trend, threshold = sp.MDbefore(A, B, show=False);
+
+   sA, sB, sK = sp.serpentin_binning(A, B, threshold, threshold / 5)
+```
+
+## Installation
+
+```sh
+   sudo pip3 install -e git+https://github.com/koszullab/serpentine.git@master#egg=serpentine
+```
+
 ## Authors
 
 Cluster Buster (scovit, a.k.a. Vittore F. Scolari),
