@@ -31,6 +31,10 @@ Locally smearing noisy regions in Hi-C contact maps as a prelude to differential
    sudo pip3 install -e git+https://github.com/koszullab/serpentine.git@master#egg=serpentine
 ```
 
+## Documentation
+
+Please read the documentation on [readthedocs website](https://serpentine.readthedocs.io/en/latest/)
+
 ## Authors
 
 Cluster Buster (scovit, a.k.a. Vittore F. Scolari),
