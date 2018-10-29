@@ -27,8 +27,8 @@ Use it as a Python 3 library:
 ```
 
 Or as a standalone UNIX tool:
-```sh
-   $ serpentine --help
+```
+$ serpentine --help
    Serpentine binning
 
    An implementation of the so-called 'serpentine binning' procedure described
