@@ -14,6 +14,7 @@ Locally smearing noisy regions in Hi-C contact maps as a prelude to differential
 
 ## Synopsis
 
+Use it as a Python 3 library:
 ```python
    import numpy as np
    import serpentine as sp
@@ -24,6 +25,55 @@ Locally smearing noisy regions in Hi-C contact maps as a prelude to differential
 
    sA, sB, sK = sp.serpentin_binning(A, B, threshold, threshold / 5)
 ```
+
+Or as a standalone UNIX tool:
+```sh
+   $ serpentine --help
+   Serpentine binning
+
+   An implementation of the so-called 'serpentine binning' procedure described
+   in Scolari et al.
+
+   Command line::
+
+    Usage:
+        serpentine.py [<matrixA>] [<matrixB>] [--threshold=auto] [--verbose]
+                      [--min-threshold=auto] [--trend=high] [--triangular]
+                      [--limit=3] [--demo] [--demo-size=500]
+
+    Arguments:
+        matrixA                         The first input matrix, in plain text
+                                        CSV format. Optional in demo mode.
+        matrixB                         The second input matrix, in plain text
+                                        CSV format. Optional in demo mode or
+                                        single binning mode.
+
+    Options:
+        -h, --help                      Display this help message.
+        --version                       Display the program's current version.
+        -t auto, --threshold auto       Threshold value to trigger binning.
+                                        [default: auto]
+        -m auto, --min-threshold auto   Minimum value to force trigger binning
+                                        in either matrix. [default: auto]
+        --trend high                    Trend to subtract to the differential
+                                        matrix, possible values are "mean":
+                                        equal amount of positive and negative
+                                        differences, and "high": normalize
+                                        at the regions with higher coverage.
+                                        [default: high]
+        --triangular                    Treat the matrix as triangular,
+                                        useful when plotting matrices adjacent
+                                        to the diagonal. [default: False]
+        --limit 3                       Set the z-axis limit on the
+                                        plot of the differential matrix.
+                                        [default: 3]
+        --demo                          Run a demo on randomly generated
+                                        matrices. [default: False]
+        --demo-size 500                 Size of the test matrix for the demo.
+                                        [default: 500]
+        -v, --verbose                   Show verbose output. [default: False]
+```
+
 
 ## Installation
 
