@@ -88,8 +88,8 @@ read the documentation on [readthedocs website](https://serpentine.readthedocs.i
 
 ## Authors
 
-Cluster Buster (scovit, a.k.a. Vittore F. Scolari),
-Lyamovich (baudrly, a.k.a. Lyam Baudry)
+Cluster Buster ([scovit](https://github.com/scovit), a.k.a. Vittore F. Scolari),
+Lyamovich ([baudrly](https://github.com/baudrly), a.k.a. Lyam Baudry)
 
 ## Copyright and license
 
