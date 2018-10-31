@@ -12,6 +12,14 @@
 
 Locally smearing noisy regions in Hi-C contact maps as a prelude to differential analyses
 
+#### Table of contents
+
+1. [Synopsis](#synopsis)
+2. [Installation](#installation)
+3. [Documentation](#documentation)
+4. [Authors](#authors)
+5. [Copyright and license](#copyright-and-license)
+
 ## Synopsis
 
 Use it as a Python 3 library:
