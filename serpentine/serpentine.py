@@ -890,9 +890,9 @@ def _main():
     verbose = arguments["--verbose"]
 
     if threshold != "auto":
-        threshold = int(threshold)
+        threshold = float(threshold)
     if minthreshold != "auto":
-        minthreshold = int(minthreshold)
+        minthreshold = float(minthreshold)
     if trend != "mean" and trend != "high":
         print('Error! The --trend option accepts only "mean" or "high" values')
         return
