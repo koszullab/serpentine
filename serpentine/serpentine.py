@@ -729,14 +729,14 @@ def dshow(dif, trend, limit=3, triangular=False, cmap=None, ax=_plt):
 
     if cmap is None:
         colors = [
-            (120. / 350, 180. / 350, 230. / 350),
+            (120. / 350 / 2, 180. / 350 / 2, 230. / 350 / 2),
             (179. / 255, 205. / 255, 227. / 255),
             (1, 1, 1),
             (251. / 255, 180. / 255, 174. / 255),
-            (248. / 350, 120. / 350, 109. / 350),
+            (248. / 350 / 2, 120. / 350 / 2, 109. / 350 / 2),
         ]
         cmap_name = "pastelpentine"
-        cm = _cols.LinearSegmentedColormap.from_list(cmap_name, colors, N=13)
+        cm = _cols.LinearSegmentedColormap.from_list(cmap_name, colors, N=21)
     else:
         cm = cmap
 
