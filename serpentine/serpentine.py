@@ -343,9 +343,9 @@ def serpentin_binning(
         consume more time, but also will result in better and smoother
         results
     triangular : bool, optional
-        Set triangular if you are interested in rebin only half of the
+        Set triangular if you are interested in rebinning only half of the
         matrix (for instance in the case of matrices which are
-        already triangular, default is false)
+        already triangular, default is False)
     verbose : bool, optional
         Set it false if you are annoyed by the printed output.
     parallel : int, optional
@@ -358,7 +358,7 @@ def serpentin_binning(
         The rebinned matrices
     sK : array_like
         The log-ratio matrix, expressend in base 2. Attention, the
-        matrix need to be normalized by subtractiong an appropriate
+        matrix needs to be normalized by subtracting an appropriate
         value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
     """

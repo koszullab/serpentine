@@ -35,7 +35,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.coverage",
     "sphinx.ext.imgmath",
@@ -67,7 +66,7 @@ author = "Vittore Scolari, Lyam Baudry"
 # built documents.
 #
 # The short X.Y version.
-version = "0.1.0"
+version = "0.1"
 # The full version, including alpha/beta/rc tags.
 release = "0.1.0"
 
