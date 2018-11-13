@@ -2,7 +2,8 @@
 
 # Serpentine binning
 
-
+[![PyPI version](https://badge.fury.io/py/serpentine.svg)](https://badge.fury.io/py/serpentine)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/serpentine.svg)
 [![Build Status](https://travis-ci.org/koszullab/serpentine.svg?branch=master)](https://travis-ci.org/koszullab/serpentine)
 [![Appveyor Status](https://ci.appveyor.com/api/projects/status/github/koszullab/serpentine?svg=true)](https://ci.appveyor.com/project/baudrly/serpentine)
 [![codecov](https://codecov.io/gh/koszullab/serpentine/branch/master/graph/badge.svg)](https://codecov.io/gh/koszullab/serpentine)
@@ -24,18 +25,20 @@ Locally smearing noisy regions in Hi-C contact maps as a prelude to differential
 ## Synopsis
 
 Use it as a Python 3 library:
+
 ```python
    import numpy as np
    import serpentine as sp
 
    A = np.loadtxt('./demos/A.csv')
    B = np.loadtxt('./demos/B.csv')
-   trend, threshold = sp.MDbefore(A, B, show=False);
+   trend, threshold = sp.MDbefore(A, B, show=False)
 
    sA, sB, sK = sp.serpentin_binning(A, B, threshold, threshold / 5)
 ```
 
 Or as a standalone UNIX tool:
+
 ```
 $ serpentine --help
    Serpentine binning
@@ -83,7 +86,6 @@ $ serpentine --help
         -v, --verbose                   Show verbose output. [default: False]
 ```
 
-
 ## Installation
 
 ```sh
@@ -93,7 +95,7 @@ $ serpentine --help
 ## Documentation
 
 Executing the command `serpentine  --help` will give you a brief help of the command line tool. For a detailed reference to the python library functions, please 
-read the documentation on [readthedocs website](https://serpentine.readthedocs.io/en/latest/)
+read the [documentation](https://serpentine.readthedocs.io/en/latest/).
 
 ## Authors
 

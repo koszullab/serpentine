@@ -12,6 +12,13 @@ Welcome to serpentine's documentation!
 
    serpentine
 
+Tutorial
+========
+.. toctree::
+    :maxdepth: 3
+
+    TUTORIAL
+
 Demo
 ====
 
@@ -21,13 +28,12 @@ Demo
     notebooks/demo_yeast
 
 
-Reference manual
-================
+Reference API
+=============
 
 .. toctree::
     :maxdepth: 2
 
-    
     api/modules
 
 
