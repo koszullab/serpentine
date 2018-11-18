@@ -58,7 +58,7 @@ from random import choice as _choice
 import multiprocessing as _mp
 from datetime import datetime as _datetime
 from serpentine.version import __version__
-
+from typing import Tuple
 
 _warns.filterwarnings(action="ignore")
 
@@ -85,13 +85,13 @@ sys.stdout = sys.stderr
 
 
 def serpentin_iteration(
-    A,
-    B,
-    threshold=DEFAULT_THRESHOLD,
-    minthreshold=DEFAULT_MIN_THRESHOLD,
-    triangular=False,
-    verbose=True,
-):
+    A: _np.ndarray,
+    B: _np.ndarray,
+    threshold: float = DEFAULT_THRESHOLD,
+    minthreshold: float = DEFAULT_MIN_THRESHOLD,
+    triangular: bool = False,
+    verbose: bool = True,
+) -> Tuple[_np.ndarray, _np.ndarray, _np.ndarray]:
 
     """Perform a single iteration of serpentin binning
 
@@ -314,15 +314,15 @@ def _serpentin_iteration_mp(value):
 
 
 def serpentin_binning(
-    A,
-    B,
-    threshold=DEFAULT_THRESHOLD,
-    minthreshold=DEFAULT_MIN_THRESHOLD,
-    iterations=DEFAULT_ITERATIONS,
-    triangular=False,
-    verbose=True,
-    parallel=4,
-):
+    A: _np.ndarray,
+    B: _np.ndarray,
+    threshold: float = DEFAULT_THRESHOLD,
+    minthreshold: float = DEFAULT_MIN_THRESHOLD,
+    iterations: float = DEFAULT_ITERATIONS,
+    triangular: bool = False,
+    verbose: bool = True,
+    parallel: int = 4,
+) -> Tuple[_np.ndarray, _np.ndarray, _np.ndarray]:
 
     """Perform the serpentin binning
 
@@ -446,7 +446,7 @@ def _MDplot(ACmean, ACdiff, trans, xlim=None, ylim=None):
         _plt.ylim(ylim[0], ylim[1])
 
 
-def mad(data, axis=None):
+def mad(data: _np.ndarray, axis=None) -> _np.float64:
 
     """Median absolute deviation
 
@@ -461,17 +461,17 @@ def mad(data, axis=None):
 
     Returns
     -------
-    int
+    float
         The median absolute deviation
     """
 
     return _np.median(_np.absolute(data - _np.median(data, axis)), axis)
 
 
-def outstanding_filter(X):
+def outstanding_filter(X: _np.ndarray) -> _np.ndarray:
 
     """Generate filtering index that removes outstanding values (three standard
-    deviations above or below the mean).
+    MADs above or below the median).
 
     Parameters
     ----------
@@ -482,6 +482,23 @@ def outstanding_filter(X):
     -------
     array_like
         The boolean filter
+
+    Example
+    -------
+
+        >>> import numpy as np
+        >>> X = np.arange(25).reshape((5,5))
+        >>> X += X.T
+        >>> X[2,2] += 10000
+        >>> print(X)
+        [[    0     6    12    18    24]
+         [    6    12    18    24    30]
+         [   12    18 10024    30    36]
+         [   18    24    30    36    42]
+         [   24    30    36    42    48]]
+        >>> O = outstanding_filter(X)
+        >>> print(O)
+        [False False  True False False]
     """
 
     with _np.errstate(divide="ignore", invalid="ignore"):
@@ -492,7 +509,7 @@ def outstanding_filter(X):
     return (norm < median - 3 * sigma) + (norm > median + 3 * sigma)
 
 
-def fltmatr(X, flt):
+def fltmatr(X: _np.ndarray, flt: _np.ndarray) -> _np.ndarray:
 
     """Filter a 2D matrix in both dimensions according to an boolean
     vector.
@@ -516,16 +533,17 @@ def fltmatr(X, flt):
         >>> import numpy as np
         >>> M = np.ones((5, 5))
         >>> M[2:4, 2:4] = 2
-        >>> M
-        array([[1., 1., 1., 1., 1.],
-               [1., 1., 1., 1., 1.],
-               [1., 1., 2., 2., 1.],
-               [1., 1., 2., 2., 1.],
-               [1., 1., 1., 1., 1.]])
+        >>> print(M)
+        [[ 1.  1.  1.  1.  1.]
+         [ 1.  1.  1.  1.  1.]
+         [ 1.  1.  2.  2.  1.]
+         [ 1.  1.  2.  2.  1.]
+         [ 1.  1.  1.  1.  1.]]
         >>> flt = M.sum(axis=1) > 5
-        >>> fltmatr(M, flt)
-        array([[2., 2.],
-               [2., 2.]])
+        >>> X = fltmatr(M, flt)
+        >>> print(X)
+        [[ 2.  2.]
+         [ 2.  2.]]
 
     """
 

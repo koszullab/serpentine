@@ -23,6 +23,11 @@ def test_single_iteration_identical(matrix_size):
     outputA, outputB, diff = serp.serpentin_iteration(inputA, inputB)
     assert np.isclose(outputA, outputB).all()
     assert (diff == 0).all()
+    outputA, outputB, diff = serp.serpentin_binning(
+        inputA, inputB, verbose=False
+    )
+    assert np.isclose(outputA, outputB).all()
+    assert (diff == 0).all()
 
 
 @pytest.mark.parametrize(*SIZE_PARAMETERS)
@@ -36,6 +41,15 @@ def test_total_smearing(matrix_size):
     max_value = max(np.sum(inputA), np.sum(inputB))
     outputA, outputB, _ = serp.serpentin_iteration(
         inputA, inputB, threshold=max_value
+    )
+    assert np.isclose(
+        outputA / np.average(outputA), np.ones((matrix_size, matrix_size))
+    ).all()
+    assert np.isclose(
+        outputB / np.average(outputB), np.ones((matrix_size, matrix_size))
+    ).all()
+    outputA, outputB, _ = serp.serpentin_binning(
+        inputA, inputB, threshold=max_value, verbose=False
     )
     assert np.isclose(
         outputA / np.average(outputA), np.ones((matrix_size, matrix_size))
@@ -58,6 +72,15 @@ def test_no_binning(matrix_size):
     )
     assert np.isclose(outputA, inputA).all()
     assert np.isclose(outputB, inputB).all()
+    outputA, outputB, _ = serp.serpentin_binning(
+        inputA,
+        inputB,
+        threshold=thresh_value,
+        minthreshold=thresh_value / 2.,
+        verbose=False,
+    )
+    assert np.isclose(outputA, inputA).all()
+    assert np.isclose(outputB, inputB).all()
 
 
 @pytest.mark.parametrize(*SIZE_PARAMETERS)
@@ -68,6 +91,11 @@ def test_symmetrical(matrix_size):
     inputB = np.random.random((matrix_size, matrix_size))
     outputA, outputB, _ = serp.serpentin_iteration(
         inputA, inputB, triangular=True
+    )
+    assert np.isclose(np.triu(outputA), np.tril(outputA).T).all()
+    assert np.isclose(np.triu(outputB), np.tril(outputB).T).all()
+    outputA, outputB, _ = serp.serpentin_binning(
+        inputA, inputB, triangular=True, verbose=False
     )
     assert np.isclose(np.triu(outputA), np.tril(outputA).T).all()
     assert np.isclose(np.triu(outputB), np.tril(outputB).T).all()
