@@ -1,4 +1,4 @@
-![Public domain serpentine logo](https://publicdomainvectors.org/photos/rygle_Snake_Colour_Outline.png)
+![Serpentine logo](demos/serpentine.gif)
 
 # Serpentine binning
 
@@ -14,13 +14,13 @@
 
 Locally smearing noisy regions in Hi-C contact maps as a prelude to differential analyses
 
-#### Table of contents
+## Table of contents
 
-1. [Synopsis](#synopsis)
-2. [Installation](#installation)
-3. [Documentation](#documentation)
-4. [Authors](#authors)
-5. [Copyright and license](#copyright-and-license)
+   - [Synopsis](#synopsis)
+   - [Installation](#installation)
+   - [Documentation](#documentation)
+   - [Authors](#authors)
+   - [Copyright and license](#copyright-and-license)
 
 ## Synopsis
 

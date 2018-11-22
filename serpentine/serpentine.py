@@ -58,7 +58,7 @@ from random import choice as _choice
 import multiprocessing as _mp
 from datetime import datetime as _datetime
 from serpentine.version import __version__
-from typing import Tuple
+from typing import Tuple, Optional
 
 _warns.filterwarnings(action="ignore")
 
@@ -217,12 +217,13 @@ def serpentin_iteration(
 
     def print_iteration(i, tot, start, verbose):
 
+        if not verbose:
+            return
         percent = 100 * float(tot) / start
         iteration_string = "{}\t Total serpentines: {} ({} %)".format(
             i, tot, percent
         )
-        if verbose:
-            print(iteration_string)
+        print(iteration_string)
 
     # merger
     i = 0
@@ -446,7 +447,7 @@ def _MDplot(ACmean, ACdiff, trans, xlim=None, ylim=None):
         _plt.ylim(ylim[0], ylim[1])
 
 
-def mad(data: _np.ndarray, axis=None) -> _np.float64:
+def mad(data: _np.ndarray, axis: Optional[int] = None) -> _np.float64:
 
     """Median absolute deviation
 
