@@ -10,8 +10,6 @@ Welcome to serpentine's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   serpentine
-
 Tutorial
 ========
 .. toctree::
