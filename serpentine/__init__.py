@@ -22,7 +22,6 @@ from .serpentine import (
     outstanding_filter,
     serpentin_binning,
     serpentin_iteration,
-    benchmarks,
 )
 
 from .version import __version__ as version
