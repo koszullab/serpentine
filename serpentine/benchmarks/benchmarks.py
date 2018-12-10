@@ -13,6 +13,11 @@ from scipy import sparse
 from scipy.ndimage import gaussian_filter
 import functools
 
+try:
+    from rpy2.robjects import r
+except ImportError:
+    print("Warning, benchmarking will fail without rpy2 to import datasets.")
+
 DEFAULT_BINNING = 1000
 
 
@@ -46,8 +51,6 @@ def tsv2csv(tsv, binning=DEFAULT_BINNING, output=None):
 
 
 def misha2csv(misha=None, binning=DEFAULT_BINNING, output=None):
-
-    from rpy2.robjects import r
 
     r_library_expression = """
     library("shaman");
@@ -110,7 +113,6 @@ def diffhic2csv():
 
 
 def hiccompare2csv(datasets=None, binning=DEFAULT_BINNING, output=None):
-    from rpy2.robjects import r
 
     if datasets is None:
         datasets = ("HMEC.chr22", "NHEC.chr22")
