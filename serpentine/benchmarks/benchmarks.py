@@ -123,7 +123,7 @@ def hiccompare2csv(datasets=None, binning=DEFAULT_BINNING, output=None):
             dataset
         )
         r(r_expression)
-        pos1, pos2, contacts = r[dataset]
+        pos1, pos2, contacts = np.array(r[dataset])
 
         pos1 //= binning
         pos2 //= binning
