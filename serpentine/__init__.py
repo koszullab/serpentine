@@ -23,6 +23,7 @@ from .serpentine import (
     serpentin_binning,
     serpentin_iteration,
 )
+from .benchmarks import *
 
 from .version import __version__ as version
 

@@ -108,10 +108,6 @@ def misha2csv(misha=None, binning=DEFAULT_BINNING, output=None):
 gaussian_blurring = functools.partial(gaussian_filter, sigma=1)
 
 
-def diffhic2csv():
-    pass
-
-
 def hiccompare2csv(datasets=None, binning=DEFAULT_BINNING, output=None):
 
     if datasets is None:
