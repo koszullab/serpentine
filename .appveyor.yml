@@ -6,9 +6,19 @@ environment:
   
   matrix:
 
+    - PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5.x"
+      PYTHON_ARCH: "64"
+
     - PYTHON: "C:\\Python36-x64"
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "64"
+
+   PIP3: "%PYTHON_VERSION%\\Scripts\\pip"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the TARGET_ARCH variable.
@@ -18,12 +28,11 @@ platform:
 install:
     # Clone simply to get the script for setting up Windows build environment.
     - cmd: git clone https://github.com/pelson/Obvious-CI.git
-    - C:\Python36\python.exe -m pip -m pip install -r requirements.txt
-    - C:\Python36\python.exe -m pip install -e .
+    - cmd: "%PIP3% install -r requirements.txt"
 
 # Skip .NET project specific build phase.
 build: off
 
 test_script:
     # Install the package
-    - python3 -m pip install C:\projects\%PROJECT_NAME% pytest
+- pip install C:\projects\%PROJECT_NAME% pytest
