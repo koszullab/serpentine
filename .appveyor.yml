@@ -26,11 +26,11 @@ platform:
 install:
     # Clone simply to get the script for setting up Windows build environment.
     - cmd: git clone https://github.com/pelson/Obvious-CI.git
-    - cmd: pip install -r requirements.txt
+    - cmd: pip3 install -r requirements.txt
 
 # Skip .NET project specific build phase.
 build: off
 
 test_script:
     # Install the package
-    - pip install C:\projects\%PROJECT_NAME% pytest
+    - pip3 install C:\projects\%PROJECT_NAME% pytest
