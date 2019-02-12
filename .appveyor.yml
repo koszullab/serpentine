@@ -26,7 +26,8 @@ platform:
 install:
     # Clone simply to get the script for setting up Windows build environment.
     - cmd: git clone https://github.com/pelson/Obvious-CI.git
-    - cmd: python3 -m pip install -r requirements.txt
+    - C:\Python36\python.exe -m pip -m pip install -r requirements.txt
+    - C:\Python36\python.exe -m pip install -e .
 
 # Skip .NET project specific build phase.
 build: off
