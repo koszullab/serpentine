@@ -111,7 +111,7 @@ gaussian_blurring = functools.partial(gaussian_filter, sigma=1)
 def hiccompare2csv(datasets=None, binning=DEFAULT_BINNING, output=None):
 
     if datasets is None:
-        datasets = ("HMEC.chr22", "NHEC.chr22")
+        datasets = ("HMEC.chr22", "NHEK.chr22")
 
     for dataset in datasets:
         r_expression = """
@@ -143,4 +143,4 @@ def hiccompare2csv(datasets=None, binning=DEFAULT_BINNING, output=None):
         if output is not None:
             np.savetxt(output, dense_matrix, fmt="%i")
 
-        yield dense_matrix
+        yield dense_matrix + dense_matrix.T - np.diag(np.diag(dense_matrix))
