@@ -3,7 +3,9 @@ environment:
   CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_env.cmd"
   
   PROJECT_NAME: serpentine
-  
+
+  - PIP3: "%PYTHON_VERSION%\\Scripts\\pip"
+
   matrix:
 
     - PYTHON: "C:\\Python34-x64"
@@ -17,8 +19,6 @@ environment:
     - PYTHON: "C:\\Python36-x64"
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "64"
-
-   PIP3: "%PYTHON_VERSION%\\Scripts\\pip"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the TARGET_ARCH variable.
