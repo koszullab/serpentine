@@ -22,6 +22,9 @@ from .serpentine import (
     outstanding_filter,
     serpentin_binning,
     serpentin_iteration,
+    barycenter,
+    all_barycenters,
+    extract_serpentines,
 )
 from .benchmarks import *
 
