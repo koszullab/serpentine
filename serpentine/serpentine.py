@@ -62,10 +62,10 @@ from typing import Tuple, Optional
 
 _warns.filterwarnings(action="ignore")
 
-DEFAULT_MIN_THRESHOLD = 10.
-DEFAULT_THRESHOLD = 50.
-DEFAULT_ITERATIONS = 10.
-DEFAULT_SIZE = 300.
+DEFAULT_MIN_THRESHOLD = 10.0
+DEFAULT_THRESHOLD = 50.0
+DEFAULT_ITERATIONS = 10.0
+DEFAULT_SIZE = 300.0
 
 ASCII_SNAKE = """
 
@@ -280,8 +280,8 @@ def serpentin_iteration(
     U = U.astype(_np.float32)
     V = V.astype(_np.float32)
     for serp in pix:
-        U[serp] = _np.sum(U[serp]) * 1. / len(serp)
-        V[serp] = _np.sum(V[serp]) * 1. / len(serp)
+        U[serp] = _np.sum(U[serp]) * 1.0 / len(serp)
+        V[serp] = _np.sum(V[serp]) * 1.0 / len(serp)
     U = U.reshape((size[0], size[1]))
     V = V.reshape((size[0], size[1]))
 
@@ -298,13 +298,13 @@ def serpentin_iteration(
         )
         trili = _np.tril_indices(_np.int(_np.sqrt(Bmod.size)))
         D = _np.zeros_like(Bmod)
-        D[trili] = V[trili] * 1. / U[trili]
+        D[trili] = V[trili] * 1.0 / U[trili]
         D[trili] = _np.log2(D[trili])
 
     else:
         Amod = U
         Bmod = V
-        D = V * 1. / U
+        D = V * 1.0 / U
         D = _np.log2(D)
 
     return (Amod, Bmod, D)
@@ -430,9 +430,9 @@ def serpentin_binning(
             sA = sA + At
             sB = sB + Bt
 
-    sK = sK * 1. / iterations
-    sA = sA * 1. / iterations
-    sB = sB * 1. / iterations
+    sK = sK * 1.0 / iterations
+    sA = sA * 1.0 / iterations
+    sB = sB * 1.0 / iterations
 
     return sA, sB, sK
 
@@ -594,7 +594,7 @@ def _madplot(
     else:
         xa = _np.percentile(ACmean[ACmean > 0], 99)
 
-    if _np.isnan(xa) or _np.isinf(xa) or xa < _np.log2(25.):
+    if _np.isnan(xa) or _np.isinf(xa) or xa < _np.log2(25.0):
         xa = _np.log2(DEFAULT_THRESHOLD)
 
     if showthr and show:
@@ -650,12 +650,12 @@ def MDbefore(XA, XB, s=10, xlim=None, ylim=None, triangular=False, show=True):
     if triangular:
         with _np.errstate(divide="ignore", invalid="ignore"):
             ACmean = _np.log2(
-                (_np.tril(XA).flatten() + _np.tril(XB).flatten()) * 1. / 2
+                (_np.tril(XA).flatten() + _np.tril(XB).flatten()) * 1.0 / 2
             )
             ACdiff = _np.log2(_np.tril(XB).flatten() / _np.tril(XA).flatten())
     else:
         with _np.errstate(divide="ignore", invalid="ignore"):
-            ACmean = _np.log2(XA.flatten() + XB.flatten()) * 1. / 2
+            ACmean = _np.log2(XA.flatten() + XB.flatten()) * 1.0 / 2
             ACdiff = _np.log2(XB.flatten() / XA.flatten())
 
     return _madplot(ACmean, ACdiff, s, xlim, ylim, show=show)
@@ -703,12 +703,12 @@ def MDafter(
     if triangular:
         with _np.errstate(divide="ignore", invalid="ignore"):
             ACmean = _np.log2(
-                (_np.tril(XA).flatten() + _np.tril(XB).flatten()) * 1. / 2
+                (_np.tril(XA).flatten() + _np.tril(XB).flatten()) * 1.0 / 2
             )
             ACdiff = _np.tril(XD).flatten()
     else:
         with _np.errstate(divide="ignore", invalid="ignore"):
-            ACmean = _np.log2(XA.flatten() + XB.flatten()) * 1. / 2
+            ACmean = _np.log2(XA.flatten() + XB.flatten()) * 1.0 / 2
             ACdiff = XD.flatten()
 
     return _madplot(ACmean, ACdiff, s, xlim, ylim, showthr=False, show=show)
@@ -748,11 +748,11 @@ def dshow(dif, trend, limit=3, triangular=False, cmap=None, ax=_plt):
 
     if cmap is None:
         colors = [
-            (120. / 350 / 2, 180. / 350 / 2, 230. / 350 / 2),
-            (179. / 255, 205. / 255, 227. / 255),
+            (120.0 / 350 / 2, 180.0 / 350 / 2, 230.0 / 350 / 2),
+            (179.0 / 255, 205.0 / 255, 227.0 / 255),
             (1, 1, 1),
-            (251. / 255, 180. / 255, 174. / 255),
-            (248. / 350 / 2, 120. / 350 / 2, 109. / 350 / 2),
+            (251.0 / 255, 180.0 / 255, 174.0 / 255),
+            (248.0 / 350 / 2, 120.0 / 350 / 2, 109.0 / 350 / 2),
         ]
         cmap_name = "pastelpentine"
         cm = _cols.LinearSegmentedColormap.from_list(cmap_name, colors, N=21)
@@ -876,7 +876,7 @@ def _demo(
     if threshold == "auto":
         threshold = mdthreshold
     if minthreshold == "auto":
-        minthreshold = threshold / 5.
+        minthreshold = threshold / 5.0
     if trend == "high":
         trend = mdtrend
 
@@ -891,6 +891,74 @@ def _demo(
     )
     _plot(U, V, W, triangular=triangular, limit=limit)
     _plt.show()
+
+
+def extract_serpentines(M):
+    """Extract serpentine structure
+    
+    Isolate serpentines based on shared pixel values
+    in a contact map.
+    
+    Parameters
+    ----------
+    M : numpy.ndarray
+        The (serpentinized) input contact map
+    """
+
+    values = set(_it.chain(*M))
+    for value in values:
+        serpentine_mask = _np.nonzero(M == value)
+        yield list(zip(*serpentine_mask))
+
+
+def barycenter(M, serp):
+    """Compute weighted serpentine barycenter
+
+    Compute the weighted barycenter of a serpentine, where
+    the weights are equal to the values of the map itself.
+
+    Parameters
+    ----------
+    M : numpy.ndarray
+        The (un-serpentined) input matrix
+    serp : iterable
+        An iterable of serpentine coordinates
+
+    Returns
+    -------
+    bary : tuple
+        The barycenter coordinates
+    """
+
+    bary = _np.zeros(2)
+    serp_total = 0
+
+    for coord in serp:
+        bary += _np.array(coord) * M[coord]
+        serp_total += M[coord]
+
+    return tuple(bary / serp_total)
+
+
+def all_barycenters(M, M_serp):
+    """Compute all serpentine barycenters
+
+    Extract all serpentines from a serpentinized matrix,
+    then compute all serpentine barycenters weigthed by
+    the non-serpentinized matrix.
+
+    Parameters
+    ----------
+    M : numpy.ndarray
+        The non-serpentinized (original) matrix
+    M_serp : numpy.ndarray
+        The serpentinized matrix
+    """
+
+    serps = extract_serpentines(M_serp)
+
+    for serp in serps:
+        yield barycenter(M, serp)
 
 
 def _main():
@@ -956,7 +1024,7 @@ def _main():
         if threshold == "auto":
             threshold = mdthreshold
         if minthreshold == "auto":
-            minthreshold = threshold / 5.
+            minthreshold = threshold / 5.0
         if trend == "high":
             trend = mdtrend
 
