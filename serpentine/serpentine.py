@@ -51,6 +51,7 @@ import numpy as _np
 import pandas as _pd
 import docopt as _doc
 import itertools as _it
+import collections as _col
 from matplotlib import pyplot as _plt
 from matplotlib import colors as _cols
 import warnings as _warns
@@ -323,8 +324,8 @@ def serpentin_binning(
     triangular: bool = False,
     verbose: bool = True,
     parallel: int = 4,
-) -> Tuple[_np.ndarray, _np.ndarray, _np.ndarray]:
-
+    sizes: bool = False,
+) -> Tuple:
     """Perform the serpentin binning
 
     The function will perform the algorithm to serpentin bin two
@@ -336,22 +337,29 @@ def serpentin_binning(
     A, B : array_like
         The matrices to be compared.
     threshold : float, optional
-        The threshold of rebinning for the highest coverage matrix.
+        The threshold of rebinning for the highest coverage matrix. Default is
+        set by the DEFAULT_THRESHOLD parameter, which is 50 if unchanged.
     minthreshold : float, optional
-        The threshold for both matrices
+        The threshold for both matrices. Default is set by the
+        DEFAULT_MIN_THRESHOLD parameter, which is 10 if unchanged.
     iterations : int, optional
         The number of iterations requested, more iterations will
         consume more time, but also will result in better and smoother
-        results
+        results. Default is set by the DEFAULT_ITERATIONS parameter, which is
+        10 if unchanged.
     triangular : bool, optional
         Set triangular if you are interested in rebinning only half of the
         matrix (for instance in the case of matrices which are
-        already triangular, default is False)
+        already triangular, default is False).
     verbose : bool, optional
-        Set it false if you are annoyed by the printed output.
+        Whether to print additional output during the computation. Default is
+        False.
     parallel : int, optional
         Set it to the number of your processor if you want to attain
-        maximum speeds
+        maximum speeds. Default is 4.
+    sizes : bool, optional
+        Whether to keep track of the serpentine size distribution, in which
+        case it will be returned as a Counter. Default is False.
 
     Returns
     -------
@@ -362,6 +370,9 @@ def serpentin_binning(
         matrix needs to be normalized by subtracting an appropriate
         value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
+    serp_size_distribution : collections.Counter, optional
+        A counter keeping track of the serpentine size distribution. Only
+        returned if the supplied 'sizes' parameter is True.
     """
 
     if triangular:
@@ -390,6 +401,8 @@ def serpentin_binning(
     sA = _np.zeros_like(A)
     sB = _np.zeros_like(A)
 
+    serp_size_distribution: _col.Counter = _col.Counter()
+
     if parallel > 1:
         if verbose:
             print(
@@ -409,6 +422,9 @@ def serpentin_binning(
             sK = sK + Kt
             sA = sA + At
             sB = sB + Bt
+            if sizes:
+                val_distribution = _col.Counter(_it.chain(*sK))
+                serp_size_distribution += _col.Counter(val_distribution.keys())
 
     else:
         if verbose:
@@ -433,8 +449,10 @@ def serpentin_binning(
     sK = sK * 1.0 / iterations
     sA = sA * 1.0 / iterations
     sB = sB * 1.0 / iterations
-
-    return sA, sB, sK
+    if sizes:
+        return sA, sB, sK, serp_size_distribution
+    else:
+        return sA, sB, sK
 
 
 def _MDplot(ACmean, ACdiff, trans, xlim=None, ylim=None):
@@ -895,10 +913,10 @@ def _demo(
 
 def extract_serpentines(M):
     """Extract serpentine structure
-    
+
     Isolate serpentines based on shared pixel values
     in a contact map.
-    
+
     Parameters
     ----------
     M : numpy.ndarray
@@ -911,18 +929,21 @@ def extract_serpentines(M):
         yield list(zip(*serpentine_mask))
 
 
-def barycenter(M, serp):
+def barycenter(serp, weights=None):
     """Compute weighted serpentine barycenter
 
-    Compute the weighted barycenter of a serpentine, where
-    the weights are equal to the values of the map itself.
+    Compute the (optionally weighted) barycenter of a
+    serpentine, where the weights would be equal to the values
+    of the map itself.
 
     Parameters
     ----------
-    M : numpy.ndarray
-        The (un-serpentined) input matrix
     serp : iterable
         An iterable of serpentine coordinates
+    weights : numpy.ndarray or None, optional
+        If None, the barycenter is unweighted. Otherwise, if it
+        is a contact map, the barycenter is weighted by the values
+        of the map at the serpentine's coordinates. Default is None.
 
     Returns
     -------
@@ -932,33 +953,37 @@ def barycenter(M, serp):
 
     bary = _np.zeros(2)
     serp_total = 0
-
     for coord in serp:
-        bary += _np.array(coord) * M[coord]
-        serp_total += M[coord]
+        if weights is not None:
+            bary += _np.array(coord) * weights[coord]
+            serp_total += weights[coord]
+        else:
+            bary += _np.array(coord)
+            serp_total += 1
 
     return tuple(bary / serp_total)
 
 
-def all_barycenters(M, M_serp):
+def all_barycenters(M_serp, weights=None):
     """Compute all serpentine barycenters
 
     Extract all serpentines from a serpentinized matrix,
-    then compute all serpentine barycenters weigthed by
-    the non-serpentinized matrix.
+    then compute all serpentine barycenters, optionally
+    weigthed by the non-serpentinized matrix.
 
     Parameters
     ----------
-    M : numpy.ndarray
-        The non-serpentinized (original) matrix
     M_serp : numpy.ndarray
         The serpentinized matrix
+    weights : numpy.ndarray or None, optional
+        The non-serpentinized (original) matrix acting
+        as weights. Default is None.
     """
 
     serps = extract_serpentines(M_serp)
 
     for serp in serps:
-        yield barycenter(M, serp)
+        yield barycenter(serp, weights=weights)
 
 
 def _main():
