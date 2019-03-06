@@ -11,20 +11,18 @@ os:
 - linux
 install:
 - pip install -r requirements.txt
-- pip install pytest pylint pytest-cov pytest-pylint codecov 
-- pip install --force-reinstall numpy==1.13.1
+- pip install pytest pylint pytest-pylint 
+- pip install pytest-cov codecov
 - if [[ $PYVER == "3.4" ]]; then
-    pip install typing;
+    pip install typing requests;
   fi
 - python setup.py install
 script:
-- pytest --pylint --pylint-error-types=EF --doctest-modules serpentine
+- pytest --pylint --pylint-error-types=EF --pylint-rcfile=.pylintrc --doctest-modules serpentine
 - cd tests;pytest --cov=serpentine
 - |
   if [[ $TRAVIS_TAG ]]; then
     python setup.py sdist;
   fi
- 
-after_success:
-- codecov -e $PYVER
+ --pylint-rcfile=.pylintrc
 tags: true
