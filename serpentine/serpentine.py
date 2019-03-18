@@ -732,7 +732,9 @@ def MDafter(
     return _madplot(ACmean, ACdiff, s, xlim, ylim, showthr=False, show=show)
 
 
-def dshow(dif, trend, limit=3, triangular=False, cmap=None, ax=_plt):
+def dshow(
+    dif, trend, limit=3, triangular=False, colorbar=True, cmap=None, ax=_plt
+):
 
     """Show differential matrix
 
@@ -792,7 +794,8 @@ def dshow(dif, trend, limit=3, triangular=False, cmap=None, ax=_plt):
     im = ax.imshow(
         plotta, vmin=-limit, vmax=limit, cmap=cm, interpolation="none"
     )
-    _plt.colorbar(im)
+    if colorbar:
+        _plt.colorbar(im)
 
 
 def mshow(XX, subplot=_plt, colorbar=True, triangular=False):
@@ -836,7 +839,7 @@ def fromupdiag(filename):
     return result
 
 
-def _plot(U, V, W, cmap=None, triangular=False, limit=3):
+def _plot(U, V, W, cmap=None, colorbar=True, triangular=False, limit=3):
 
     fig = _plt.figure()
 
@@ -848,7 +851,8 @@ def _plot(U, V, W, cmap=None, triangular=False, limit=3):
         vmax=_np.percentile(U, 99),
         cmap="Reds",
     )
-    _plt.colorbar(im1)
+    if colorbar:
+        _plt.colorbar(im1)
 
     ax2 = fig.add_subplot(2, 2, 2)
     im2 = ax2.imshow(
@@ -858,10 +862,19 @@ def _plot(U, V, W, cmap=None, triangular=False, limit=3):
         vmax=_np.percentile(U, 99),
         cmap="Reds",
     )
-    _plt.colorbar(im2)
+    if colorbar:
+        _plt.colorbar(im2)
 
     ax3 = fig.add_subplot(2, 2, 3)
-    dshow(W, 0, limit=limit, triangular=triangular, cmap=cmap, ax=ax3)
+    dshow(
+        W,
+        0,
+        limit=limit,
+        triangular=triangular,
+        colorbar=colorbar,
+        cmap=cmap,
+        ax=ax3,
+    )
 
 
 def _demo(
