@@ -24,5 +24,4 @@ script:
   if [[ $TRAVIS_TAG ]]; then
     python setup.py sdist;
   fi
- --pylint-rcfile=.pylintrc
 tags: true
