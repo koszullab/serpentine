@@ -43,7 +43,7 @@ $ serpentine --help
    Serpentine binning
 
    An implementation of the so-called 'serpentine binning' procedure described
-   in Scolari et al.
+   in Baudry et al.
 
    Command line::
 
