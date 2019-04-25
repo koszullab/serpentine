@@ -1,4 +1,4 @@
-[Serpentine logo](demos/serpentine.gif)
+[![Serpentine logo](demos/serpentine.gif)]
 
 # Serpentine binning
 
