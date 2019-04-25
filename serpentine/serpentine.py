@@ -552,12 +552,6 @@ def fltmatr(X: _np.ndarray, flt: _np.ndarray) -> _np.ndarray:
         >>> import numpy as np
         >>> M = np.ones((5, 5))
         >>> M[2:4, 2:4] = 2
-        >>> print(M)
-        [[ 1.  1.  1.  1.  1.]
-         [ 1.  1.  1.  1.  1.]
-         [ 1.  1.  2.  2.  1.]
-         [ 1.  1.  2.  2.  1.]
-         [ 1.  1.  1.  1.  1.]]
         >>> flt = M.sum(axis=1) > 5
         >>> X = fltmatr(M, flt)
         >>> print(X)
