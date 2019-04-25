@@ -1,4 +1,4 @@
-owa/#path=/mail/search![Serpentine logo](demos/serpentine.gif)
+trinityrnaseq/trinityrnaseq/releasestrinityrnaseq/trinityrnaseq/releasestrinityrnaseq/trinityrnaseq/releases[Serpentine logo](demos/serpentine.gif)
 
 # Serpentine binning
 
