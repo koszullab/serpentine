@@ -1,11 +1,10 @@
-![Serpentine logo](demos/serpentine.gif)
+owa/#path=/mail/search![Serpentine logo](demos/serpentine.gif)
 
 # Serpentine binning
 
 [![PyPI version](https://badge.fury.io/py/serpentine.svg)](https://badge.fury.io/py/serpentine)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/serpentine.svg)
 [![Build Status](https://travis-ci.org/koszullab/serpentine.svg?branch=master)](https://travis-ci.org/koszullab/serpentine)
-[![Appveyor Status](https://ci.appveyor.com/api/projects/status/github/koszullab/serpentine?svg=true)](https://ci.appveyor.com/project/baudrly/serpentine)
 [![codecov](https://codecov.io/gh/koszullab/serpentine/branch/master/graph/badge.svg)](https://codecov.io/gh/koszullab/serpentine)
 [![Read the docs](https://readthedocs.org/projects/serpentine/badge)](https://serpentine.readthedocs.io)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/koszullab/serpentine/master?filepath=doc%2Fnotebooks%2Fdemo_yeast.ipynb)
