@@ -401,7 +401,7 @@ def serpentin_binning(
     sA = _np.zeros_like(A)
     sB = _np.zeros_like(A)
 
-    serp_size_distribution: _col.Counter = _col.Counter()
+    serp_size_distribution = _col.Counter()
 
     if parallel > 1:
         if verbose:
