@@ -554,9 +554,8 @@ def fltmatr(X: _np.ndarray, flt: _np.ndarray) -> _np.ndarray:
         >>> M[2:4, 2:4] = 2
         >>> flt = M.sum(axis=1) > 5
         >>> X = fltmatr(M, flt)
-        >>> print(X)
-        [[ 2.  2.]
-         [ 2.  2.]]
+        >>> print([X[0,0], X[0,1], X[1,0], X[1,1]])
+        [2.0, 2.0, 2.0, 2.0]
 
     """
 
