@@ -487,7 +487,7 @@ def mad(data: _np.ndarray, axis: Optional[int] = None) -> _np.float64:
     return _np.median(_np.absolute(data - _np.median(data, axis)), axis)
 
 
-def outstanding_filter(X: _np.ndarray) -> _np.ndarray:
+def outstanding_filter(X: _np.ndarray, sds: Optional[float] = 2.0) -> _np.ndarray:
 
     """Generate filtering index that removes outstanding values (three standard
     MADs above or below the median).
@@ -525,7 +525,7 @@ def outstanding_filter(X: _np.ndarray) -> _np.ndarray:
         median = _np.median(norm)
         sigma = 1.4826 * mad(norm)
 
-    return (norm < median - 3 * sigma) + (norm > median + 3 * sigma)
+    return (norm < median - sds * sigma) + (norm > median + sds * sigma)
 
 
 def fltmatr(X: _np.ndarray, flt: _np.ndarray) -> _np.ndarray:
