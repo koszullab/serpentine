@@ -67,6 +67,7 @@ DEFAULT_MIN_THRESHOLD = 10.0
 DEFAULT_THRESHOLD = 50.0
 DEFAULT_ITERATIONS = 10.0
 DEFAULT_SIZE = 300.0
+DEFAULT_PRECISION = 0.05
 
 ASCII_SNAKE = """
 
@@ -92,6 +93,7 @@ def serpentin_iteration(
     minthreshold: float = DEFAULT_MIN_THRESHOLD,
     triangular: bool = False,
     verbose: bool = True,
+    offset: int = 0,
 ) -> Tuple[_np.ndarray, _np.ndarray, _np.ndarray]:
 
     """Perform a single iteration of serpentin binning
@@ -114,7 +116,8 @@ def serpentin_iteration(
         already triangular, default is false)
     verbose : bool, optional
         Set it false if you are annoyed by the printed output.
-
+    offset : int, optional
+        Diagonals to ignore when performing the binning.
     Returns
     -------
     Amod, Bmod : array_like
@@ -184,7 +187,7 @@ def serpentin_iteration(
         pixels = [
             _np.array([i * size[0] + j], dtype=_np.int32)
             for (i, j) in _it.product(range(size[0]), range(size[0]))
-            if i >= j
+            if i >= j and abs(i - j) >= offset
         ]
 
         neighs = [
@@ -193,7 +196,7 @@ def serpentin_iteration(
                 for (a, b) in pixel_neighs_triangular(i, j, size[0])
             )
             for (i, j) in _it.product(range(size[0]), range(size[0]))
-            if i >= j
+            if i >= j and abs(i - j) >= offset
         ]
         start = int(size[0] * (size[0] + 1) / 2)
         tot = start
@@ -202,6 +205,7 @@ def serpentin_iteration(
         pixels = [
             _np.array([i * size[1] + j], dtype=_np.int32)
             for (i, j) in _it.product(range(size[0]), range(size[1]))
+            if abs(i - j) >= offset
         ]
         neighs = [
             set(
@@ -209,6 +213,7 @@ def serpentin_iteration(
                 for (a, b) in pixel_neighs(i, j, size[0], size[1])
             )
             for (i, j) in _it.product(range(size[0]), range(size[1]))
+            if abs(i - j) >= offset
         ]
         start = size[0] * size[1]
         tot = start
@@ -321,6 +326,7 @@ def serpentin_binning(
     threshold: float = DEFAULT_THRESHOLD,
     minthreshold: float = DEFAULT_MIN_THRESHOLD,
     iterations: float = DEFAULT_ITERATIONS,
+    precision: float = DEFAULT_PRECISION,
     triangular: bool = False,
     verbose: bool = True,
     parallel: int = 4,
@@ -345,8 +351,13 @@ def serpentin_binning(
     iterations : int, optional
         The number of iterations requested, more iterations will
         consume more time, but also will result in better and smoother
-        results. Default is set by the DEFAULT_ITERATIONS parameter, which is
-        10 if unchanged.
+        results. If 0 or negative, iterations will continue until the average
+        matrix after one more iteration doesn't differ by more than the
+        precision parameter. Default is 10.
+    precision : float, optional
+        If the iterations parameter is 0 or negative, the iterations will
+        continue until the average matrix after one more iteration doesn't
+        differ by more than the precision parameter. Default is 0.05.
     triangular : bool, optional
         Set triangular if you are interested in rebinning only half of the
         matrix (for instance in the case of matrices which are
@@ -433,18 +444,54 @@ def serpentin_binning(
                     _datetime.now(), iterations
                 )
             )
-        for _ in range(iterations):
-            At, Bt, Kt = serpentin_iteration(
-                A,
-                B,
-                threshold=threshold,
-                minthreshold=minthreshold,
-                triangular=triangular,
-                verbose=verbose,
-            )
-            sK = sK + Kt
-            sA = sA + At
-            sB = sB + Bt
+        if iterations > 0:
+            for _ in range(int(iterations)):
+                At, Bt, Kt = serpentin_iteration(
+                    A,
+                    B,
+                    threshold=threshold,
+                    minthreshold=minthreshold,
+                    triangular=triangular,
+                    verbose=verbose,
+                )
+                sK = sK + Kt
+                sA = sA + At
+                sB = sB + Bt
+        else:
+            iterations = 1
+            current_diff = float("inf")
+            while current_diff < precision:
+                At, Bt, Kt = serpentin_iteration(
+                    A,
+                    B,
+                    threshold=threshold,
+                    minthreshold=minthreshold,
+                    triangular=triangular,
+                    verbose=verbose,
+                )
+                new_sK = sK + Kt
+                new_sA = sA + At
+                new_sB = sB + Bt
+                sK_diff = _np.abs(
+                    (new_sK / (iterations + 1)) - (sK / iterations)
+                )
+                sA_diff = _np.abs(
+                    (new_sA / (iterations + 1)) - (sA / iterations)
+                )
+                sB_diff = _np.abs(
+                    (new_sB / (iterations + 1)) - (sB / iterations)
+                )
+                if (
+                    max(_np.amax(sK_diff), _np.amax(sA_diff), _np.abs(sB_diff))
+                    < precision
+                ):
+                    break
+
+                else:
+                    sK = new_sK
+                    sA = new_sA
+                    sB = new_sB
+                    iterations += 1
 
     sK = sK * 1.0 / iterations
     sA = sA * 1.0 / iterations
@@ -748,6 +795,8 @@ def dshow(
         Set triangular if you are interested in rebin only half of the
         matrix (for instance in the case of matrices which are
         already triangular, default is false)
+    colorbar: bool, optional
+        Whether to include a colorbar in the plot display. Default is True.
     cmap: str, optional
         Color map of the plotted matrix. Should be ideally diverging, default
         is sesismic.
