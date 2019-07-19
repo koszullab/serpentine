@@ -14,7 +14,7 @@ from scipy.ndimage import gaussian_filter
 import functools
 
 try:
-    from rpy2.robjects import r
+    import rpy2
 except ImportError:
     print("Warning, benchmarking will fail without rpy2 to import datasets.")
 
@@ -64,15 +64,15 @@ def misha2csv(misha=None, binning=DEFAULT_BINNING, output=None):
         178e06, 2, 175e06, 178e06), colnames="score")
         """
     else:
-        r.assign("path", misha)
+        rpy2.robjects.r.assign("path", misha)
         r_import_expression = """
         contact_map <- gextract("hic_obs", gintervals.2d(2, 0, 
         178e06, 2, 175e06, 178e06), colnames="score")
         """
 
-    r(r_library_expression)
-    r(r_import_expression)
-    # r("write.table(contact_map, 'exported_map.csv')")
+    rpy2.robjects.r(r_library_expression)
+    rpy2.robjects.r(r_import_expression)
+    # rpy2.robjects.r("write.table(contact_map, 'exported_map.csv')")
     # matrix = np.genfromtxt("exported_map.csv", dtype=None, skip_header=True)
     matrix = r["contact_map"]
 
@@ -120,7 +120,7 @@ def hiccompare2csv(datasets=None, binning=DEFAULT_BINNING, output=None):
         """.format(
             dataset
         )
-        r(r_expression)
+        rpy2.robjects.r(r_expression)
         pos1, pos2, contacts = np.array(r[dataset])
 
         pos1 //= binning
