@@ -24,6 +24,7 @@ Demo
     :maxdepth: 2
 
     notebooks/demo_yeast
+    notebooks/reproduction_paper
 
 
 Reference API
