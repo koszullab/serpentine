@@ -15,7 +15,7 @@ import functools
 
 try:
     import rpy2
-except ImportError:
+except (ImportError, RuntimeError):
     print("Warning, benchmarking will fail without rpy2 to import datasets.")
 
 DEFAULT_BINNING = 1000
@@ -26,8 +26,8 @@ def tsv2csv(tsv, binning=DEFAULT_BINNING, output=None):
     matrix = np.genfromtxt(tsv, dtype=None, comments=None, delimiter="\t")
     (_, _, pos1, *_, pos2, _, _, _, _) = zip(*matrix)
 
-    positions1 = np.array(pos1) // binning
-    positions2 = np.array(pos2) // binning
+    positions1 = np.array(pos1, dtype=np.int32) // binning
+    positions2 = np.array(pos2, dtype=np.int32) // binning
 
     minimum = min(np.amin(positions1), np.amin(positions2))
     positions1 -= minimum
