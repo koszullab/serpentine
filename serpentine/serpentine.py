@@ -92,6 +92,7 @@ def serpentin_iteration(
     threshold: float = DEFAULT_THRESHOLD,
     minthreshold: float = DEFAULT_MIN_THRESHOLD,
     triangular: bool = False,
+    force_symmetric: bool = False,
     verbose: bool = True,
     offset: int = 0,
 ) -> Tuple[_np.ndarray, _np.ndarray, _np.ndarray]:
@@ -114,6 +115,8 @@ def serpentin_iteration(
         Set triangular if you are interested in rebin only half of the
         matrix (for instance in the case of matrices which are
         already triangular, default is false)
+    force_symmetric : bool, optional
+        Force the final binned matrix to be symmetric. Default is False.
     verbose : bool, optional
         Set it false if you are annoyed by the printed output.
     offset : int, optional
@@ -307,6 +310,12 @@ def serpentin_iteration(
         D[trili] = V[trili] * 1.0 / U[trili]
         D[trili] = _np.log2(D[trili])
 
+    elif force_symmetric:
+        Amod = (U + U.T) / 2
+        Bmod = (V + V.T) / 2
+        D = V * 1.0 / U
+        D = _np.log2(D)
+
     else:
         Amod = U
         Bmod = V
@@ -328,8 +337,9 @@ def serpentin_binning(
     iterations: float = DEFAULT_ITERATIONS,
     precision: float = DEFAULT_PRECISION,
     triangular: bool = False,
+    force_symmetric: bool = False,
     verbose: bool = True,
-    parallel: int = 4,
+    parallel: int = 4 ,
     sizes: bool = False,
 ) -> Tuple:
     """Perform the serpentin binning
@@ -362,6 +372,7 @@ def serpentin_binning(
         Set triangular if you are interested in rebinning only half of the
         matrix (for instance in the case of matrices which are
         already triangular, default is False).
+    force_symmetric : bool, optional
     verbose : bool, optional
         Whether to print additional output during the computation. Default is
         False.
@@ -467,6 +478,7 @@ def serpentin_binning(
                     threshold=threshold,
                     minthreshold=minthreshold,
                     triangular=triangular,
+                    force_symmetric=force_symmetric,
                     verbose=verbose,
                 )
                 new_sK = sK + Kt
@@ -496,6 +508,7 @@ def serpentin_binning(
     sK = sK * 1.0 / iterations
     sA = sA * 1.0 / iterations
     sB = sB * 1.0 / iterations
+
     if sizes:
         return sA, sB, sK, serp_size_distribution
     else:
