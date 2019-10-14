@@ -310,11 +310,11 @@ def serpentin_iteration(
         D[trili] = V[trili] * 1.0 / U[trili]
         D[trili] = _np.log2(D[trili])
 
-    elif force_symmetric:
-        Amod = (U + U.T) / 2
-        Bmod = (V + V.T) / 2
-        D = V * 1.0 / U
-        D = _np.log2(D)
+    # elif force_symmetric:
+    #     Amod = (U + U.T) / 2
+    #     Bmod = (V + V.T) / 2
+    #     D = V * 1.0 / U
+    #     D = _np.log2(D)
 
     else:
         Amod = U
@@ -508,6 +508,11 @@ def serpentin_binning(
     sK = sK * 1.0 / iterations
     sA = sA * 1.0 / iterations
     sB = sB * 1.0 / iterations
+
+    if force_symmetric:
+        sK = (sK + sK.T)/2
+        sA = (sA + sA.T)/2
+        sB = (sB + sB.T)/2
 
     if sizes:
         return sA, sB, sK, serp_size_distribution
