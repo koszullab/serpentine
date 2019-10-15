@@ -74,7 +74,7 @@ def misha2csv(misha=None, binning=DEFAULT_BINNING, output=None):
     rpy2.robjects.r(r_import_expression)
     # rpy2.robjects.r("write.table(contact_map, 'exported_map.csv')")
     # matrix = np.genfromtxt("exported_map.csv", dtype=None, skip_header=True)
-    matrix = r["contact_map"]
+    matrix = rpy2.robjects.r["contact_map"]
 
     (_, _, start1, end1, _, start2, end2, contacts, _) = zip(*matrix)
 
@@ -121,7 +121,7 @@ def hiccompare2csv(datasets=None, binning=DEFAULT_BINNING, output=None):
             dataset
         )
         rpy2.robjects.r(r_expression)
-        pos1, pos2, contacts = np.array(r[dataset])
+        pos1, pos2, contacts = np.array(rpy2.robjects.r[dataset])
 
         pos1 //= binning
         pos2 //= binning
