@@ -16,6 +16,9 @@ install:
 - if [[ $PYVER == "3.4" ]]; then
     pip install typing requests;
   fi
+- if [[ $PYVER == "3.6" ]]; then
+    pip install six==1.12;
+  fi
 - python setup.py install
 script:
 - pytest --pylint --pylint-error-types=EF --pylint-rcfile=.pylintrc --doctest-modules serpentine
