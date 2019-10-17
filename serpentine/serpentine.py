@@ -510,7 +510,7 @@ def serpentin_binning(
     sB = sB * 1.0 / iterations
 
     if force_symmetric:
-        sK = np.log2((2**sK + 2**sK.T)/2)
+        sK = _np.log2((2**sK + 2**sK.T)/2)
         sA = (sA + sA.T)/2
         sB = (sB + sB.T)/2
 
