@@ -510,9 +510,9 @@ def serpentin_binning(
     sB = sB * 1.0 / iterations
 
     if force_symmetric:
-        sK = _np.log2((2**sK + 2**sK.T)/2)
-        sA = (sA + sA.T)/2
-        sB = (sB + sB.T)/2
+        sK = _np.tril(sK) + _np.tril(sK).T - _np.diag(np.diag(sK))
+        sA = _np.tril(sA) + _np.tril(sA).T - _np.diag(np.diag(sA))
+        sB = _np.tril(sB) + _np.tril(sB).T - _np.diag(np.diag(sB))
 
     if sizes:
         return sA, sB, sK, serp_size_distribution
