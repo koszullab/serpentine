@@ -338,6 +338,7 @@ def serpentin_binning(
     precision: float = DEFAULT_PRECISION,
     triangular: bool = False,
     force_symmetric: bool = False,
+    force_logratio: bool = True,
     verbose: bool = True,
     parallel: int = 4 ,
     sizes: bool = False,
@@ -509,6 +510,8 @@ def serpentin_binning(
     sA = sA * 1.0 / iterations
     sB = sB * 1.0 / iterations
 
+    sK = _np.log2(sB/sA)
+    
     if force_symmetric:
         sK = _np.tril(sK) + _np.tril(sK).T - _np.diag(_np.diag(sK))
         sA = _np.tril(sA) + _np.tril(sA).T - _np.diag(_np.diag(sA))
