@@ -16,7 +16,7 @@ import functools
 try:
     import rpy2
 except (ImportError, RuntimeError):
-    print("Warning, benchmarking will fail without rpy2 to import datasets.")
+    pass
 
 DEFAULT_BINNING = 1000
 
