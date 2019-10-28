@@ -71,6 +71,7 @@ DEFAULT_THRESHOLD = 50.0
 DEFAULT_ITERATIONS = 10.0
 DEFAULT_SIZE = 300.0
 DEFAULT_PRECISION = 0.05
+ALTERNATE_PRINT = functools.partial(print, file=open("serpentine.log", "a"))
 
 ASCII_SNAKE = """
 
