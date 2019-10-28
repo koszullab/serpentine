@@ -36,7 +36,7 @@ Command line::
         --triangular                    Treat the matrix as triangular,
                                         useful when plotting matrices adjacent
                                         to the diagonal. [default: False]
-        --print-file                    File for stdout redirection.
+        --printfile                     File for stdout redirection.
                                         [default: None]
         --limit 3                       Set the z-axis limit on the
                                         plot of the differential matrix.
@@ -1078,7 +1078,7 @@ def _main():
     trend = arguments["--trend"]
     is_demo = int(arguments["--demo"])
     verbose = arguments["--verbose"]
-    print_file = arguments["--print-file"]
+    print_file = arguments["--printfile"]
     
     if print_file is not None:
         print = functools.partial(print, file=print_file)
