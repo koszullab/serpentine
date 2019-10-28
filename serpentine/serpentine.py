@@ -36,6 +36,8 @@ Command line::
         --triangular                    Treat the matrix as triangular,
                                         useful when plotting matrices adjacent
                                         to the diagonal. [default: False]
+        --print-file                    File for stdout redirection.
+                                        [default: None]
         --limit 3                       Set the z-axis limit on the
                                         plot of the differential matrix.
                                         [default: 3]
@@ -60,6 +62,7 @@ import multiprocessing as _mp
 from datetime import datetime as _datetime
 from serpentine.version import __version__
 from typing import Tuple, Optional
+import functools
 
 _warns.filterwarnings(action="ignore")
 
@@ -84,7 +87,6 @@ ASCII_SNAKE = """
 """
 
 sys.stdout = sys.stderr
-
 
 def serpentin_iteration(
     A: _np.ndarray,
@@ -1076,6 +1078,10 @@ def _main():
     trend = arguments["--trend"]
     is_demo = int(arguments["--demo"])
     verbose = arguments["--verbose"]
+    print_file = arguments["--print-file"]
+    
+    if print_file is not None:
+        print = functools.partial(print, file=print_file)
 
     if threshold != "auto":
         threshold = float(threshold)
