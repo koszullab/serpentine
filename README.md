@@ -88,6 +88,11 @@ $ serpentine --help
 ## Installation
 
 ```sh
+   sudo pip3 install serpentine
+```
+or, for the very latest version:
+
+```sh
    sudo pip3 install -e git+https://github.com/koszullab/serpentine.git@master#egg=serpentine
 ```
 
@@ -96,14 +101,17 @@ $ serpentine --help
 Executing the command `serpentine  --help` will give you a brief help of the command line tool. For a detailed reference to the python library functions, please 
 read the [documentation](https://serpentine.readthedocs.io/en/latest/).
 
+For a full-fledged analysis, consider running the [slitherine](https://gitlab.pasteur.fr/gmillot/slitherine) pipeline.
+
 ## Authors
 
-Cluster Buster ([scovit](https://github.com/scovit), a.k.a. Vittore F. Scolari),
-Lyamovich ([baudrly](https://github.com/baudrly), a.k.a. Lyam Baudry)
+Vittore F. Scolari ([scovit](https://github.com/scovit)),
+Lyam Baudry ([baudrly](https://github.com/baudrly)),
+Gael Millot ([gmillot](https://gitlab.pasteur.fr/gmillot))
 
 ## Copyright and license
 
-Copyright © 2017 Institut Pasteur, this software has been developed in
+Copyright © 2017-2019 Institut Pasteur, this software has been developed in
 the Regulation Spatiale des Chromosomes team of Pasteur Institut,
 Paris, France.
 
