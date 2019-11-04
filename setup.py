@@ -31,7 +31,7 @@ name = "serpentine"
 
 MAJOR = 0
 MINOR = 1
-MAINTENANCE = 2
+MAINTENANCE = 3
 VERSION = "{}.{}.{}".format(MAJOR, MINOR, MAINTENANCE)
 
 LICENSE = "Artistic License 2.0"
