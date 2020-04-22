@@ -101,6 +101,8 @@ or, for the very latest version:
 Executing the command `serpentine  --help` will give you a brief help of the command line tool. For a detailed reference to the python library functions, please 
 read the [documentation](https://serpentine.readthedocs.io/en/latest/).
 
+To understand the tool, please read the article on [Bioinformatics](https://academic.oup.com/bioinformatics/article-abstract/doi/10.1093/bioinformatics/btaa249/5822880).
+
 For a full-fledged analysis, consider running the [slitherine](https://gitlab.pasteur.fr/gmillot/slitherine) pipeline.
 
 ## Authors
@@ -108,6 +110,12 @@ For a full-fledged analysis, consider running the [slitherine](https://gitlab.pa
 Vittore F. Scolari ([scovit](https://github.com/scovit)),
 Lyam Baudry ([baudrly](https://github.com/baudrly)),
 Gael Millot ([gmillot](https://gitlab.pasteur.fr/gmillot))
+
+## Citation
+
+Baudry L, Millot GA, Thierry A, Koszul R, Scolari VF.
+*Serpentine: a flexible 2D binning method for differential Hi-C analysis.*
+Bioinformatics. 2020 Apr 20. pii: btaa249. doi: [10.1093/bioinformatics/btaa249](https://www.doi.org/10.1093/bioinformatics/btaa249)
 
 ## Copyright and license
 
