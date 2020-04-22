@@ -113,9 +113,9 @@ Gael Millot ([gmillot](https://gitlab.pasteur.fr/gmillot))
 
 ## Citation
 
-Baudry L, Millot GA, Thierry A, Koszul R, Scolari VF.
-*Serpentine: a flexible 2D binning method for differential Hi-C analysis.*
-Bioinformatics. 2020 Apr 20. pii: btaa249. doi: [10.1093/bioinformatics/btaa249](https://www.doi.org/10.1093/bioinformatics/btaa249)
+Baudry L., Millot G. A., Thierry A., Koszul R., and Scolari V.F.
+Serpentine: a flexible 2D binning method for differential Hi-C analysis.
+*Bioinformatics*, 2020 Apr 20, doi: [10.1093/bioinformatics/btaa249](https://www.doi.org/10.1093/bioinformatics/btaa249)
 
 ## Copyright and license
 
