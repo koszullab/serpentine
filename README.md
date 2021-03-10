@@ -13,6 +13,10 @@
 
 Locally smearing noisy regions in Hi-C contact maps as a prelude to differential analyses
 
+Example: Standard Hi-C matrix ratio without (left) and with (right) serpentine with different numbers of iterations.
+<p align="center"><img src="doc/media/example_before.png" align="left" width=50%><img src="doc/media/example_process.gif" align="right" width=50%>
+</p>
+
 ## Table of contents
 
    - [Synopsis](#synopsis)
