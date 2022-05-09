@@ -286,7 +286,7 @@ def serpentin_iteration_multi(
 
     U = U.astype(_np.float32)
     for serp in pix:
-        U[:,serp] = _np.sum(U[:,serp],axis=1) * 1.0 / len(serp)
+        U[:,serp] = _np.sum(U[:,serp],axis=1).reshape((dim0,1)) * 1.0 / len(serp)
     U = U.reshape((dim0, dim1, dim2))
 
     D = _np.zeros((dim0, dim0, dim1, dim2))
@@ -305,7 +305,7 @@ def serpentin_iteration_multi(
                     D[i,j,trili] = _np.log2(D[i,j,trili])
 
     else:
-        D[_np.eye(dim0)] = U
+        D[_np.eye(dim0, dtype=bool)] = U
         for i in range(dim0):
             for j in range(dim0):
                 D[i,j] = _np.log2(U[i] * 1.0 / U[j])
@@ -492,10 +492,10 @@ def serpentin_binning_multi(
         res = p.map(_serpentin_iteration_multi_mp, iterator)
 
         for r in res:
-            sK = sK + r
+            sM = sM + r
             if sizes:
                 # Note: how does it work? Seems wrong to me
-                val_distribution = _col.Counter(_it.chain(*sK))
+                val_distribution = _col.Counter(_it.chain(*sM))
                 serp_size_distribution += _col.Counter(val_distribution.keys())
 
     else:
