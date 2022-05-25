@@ -93,9 +93,9 @@ def serpentin_iteration_multi(
     threshold: float = DEFAULT_THRESHOLD,
     minthreshold: float = DEFAULT_MIN_THRESHOLD,
     triangular: bool = False,
-    force_symmetric: bool = False,
     verbose: bool = True,
     offset: int = 0,
+    get_bins: bool = False,
 ) -> _np.ndarray:
 
     """Perform a single iteration of serpentin binning, multiple matrices version
@@ -116,12 +116,19 @@ def serpentin_iteration_multi(
         Set triangular if you are interested in rebin only half of the
         matrix (for instance in the case of matrices which are
         already triangular, default is false)
-    force_symmetric : bool, optional
-        Force the final binned matrix to be symmetric. Default is False.
     verbose : bool, optional
         Set it false if you are annoyed by the printed output.
     offset : int, optional
         Diagonals to ignore when performing the binning.
+    get_bins : bool, optional
+        Whether to return the identified bins, in which
+        case it will be returned as touple indexes. One element of the touple
+        per serpentine.
+        Each serpentine can be used as an 2D index for each stack in M,
+        to slice the values relative to its bins.
+        Note: this options consumes a significant amount of memory.
+        Default is False.
+
     Returns
     -------
     D : array_like
@@ -131,6 +138,9 @@ def serpentin_iteration_multi(
         Attention, the log-ratio matrices needs to be individually normalized by subtracting
         an appropriate value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
+    bins : Touple, optional
+        A touple containing the serpentines.
+        Only returned if the supplied 'bins' parameter is True.
     """
 
     try:
@@ -186,17 +196,17 @@ def serpentin_iteration_multi(
 
     if triangular:
         pixels = [
-            _np.array([i * dim1 + j], dtype=_np.int32)
-            for (i, j) in _it.product(range(dim1), range(dim1))
+            _np.array([i * dim2 + j], dtype=_np.int32)
+            for (i, j) in _it.product(range(dim1), range(dim2))
             if i >= j and abs(i - j) >= offset
         ]
 
         neighs = [
             set(
                 int((a * (a + 1) / 2)) + b
-                for (a, b) in pixel_neighs_triangular(i, j, dim1)
+                for (a, b) in pixel_neighs_triangular(i, j, dim2)
             )
-            for (i, j) in _it.product(range(dim1), range(dim1))
+            for (i, j) in _it.product(range(dim1), range(dim2))
             if i >= j and abs(i - j) >= offset
         ]
         start = int(dim1 * (dim1 + 1) / 2)
@@ -310,7 +320,16 @@ def serpentin_iteration_multi(
             for j in range(dim0):
                 D[i,j] = _np.log2(U[i] * 1.0 / U[j])
 
-    return D
+    if get_bins:
+        # convert the bins in 2D coordinates
+        bins = []
+        for p in pix:
+            x = p // dim2
+            y = p - dim2 * x
+            bins.append((tuple(x), tuple(y)))
+        return D, tuple(bins)
+    else:
+        return D
 
 def serpentin_iteration(
     A: _np.ndarray,
@@ -318,9 +337,9 @@ def serpentin_iteration(
     threshold: float = DEFAULT_THRESHOLD,
     minthreshold: float = DEFAULT_MIN_THRESHOLD,
     triangular: bool = False,
-    force_symmetric: bool = False,
     verbose: bool = True,
     offset: int = 0,
+    get_bins: bool = False,
 ) -> Tuple[_np.ndarray, _np.ndarray, _np.ndarray]:
 
     """Perform a single iteration of serpentin binning
@@ -341,12 +360,19 @@ def serpentin_iteration(
         Set triangular if you are interested in rebin only half of the
         matrix (for instance in the case of matrices which are
         already triangular, default is false)
-    force_symmetric : bool, optional
-        Force the final binned matrix to be symmetric. Default is False.
     verbose : bool, optional
         Set it false if you are annoyed by the printed output.
     offset : int, optional
         Diagonals to ignore when performing the binning.
+    get_bins : bool, optional
+        Whether to return the identified bins, in which
+        case it will be returned as touple indexes. One element of the touple
+        per serpentine.
+        Each serpentine can be used as an 2D index for each stack in M,
+        to slice the values relative to its bins.
+        Note: this options consumes a significant amount of memory.
+        Default is False.
+
     Returns
     -------
     Amod, Bmod : array_like
@@ -356,6 +382,9 @@ def serpentin_iteration(
         matrix need to be normalized by subtractiong an appropriate
         value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
+    bins : Touple, optional
+        A touple containing the serpentines.
+        Only returned if the supplied 'bins' parameter is True.
     """
 
     try:
@@ -367,15 +396,25 @@ def serpentin_iteration(
 
     M = _np.stack((A,B))
 
-    sM = serpentin_iteration_multi(M,
-        threshold, minthreshold, triangular,
-        force_symmetric, verbose, offset
-    )
+    if get_bins:
+        sM, bins = serpentin_iteration_multi(M,
+            threshold, minthreshold, triangular,
+            verbose, offset, get_bins
+        )
+    else:
+        sM = serpentin_iteration_multi(M,
+            threshold, minthreshold, triangular,
+            verbose, offset, get_bins
+        )
 
     Amod = sM[0,0]
     Bmod = sM[1,1]
     D = sM[0,1]
-    return (Amod, Bmod, D)
+    
+    if get_bins:
+        return Amod, Bmod, D, bins
+    else:
+        return Amod, Bmod, D
 
 def _serpentin_iteration_multi_mp(value):
     return serpentin_iteration_multi(*value)
@@ -391,7 +430,7 @@ def serpentin_binning_multi(
     force_symmetric: bool = False,
     verbose: bool = True,
     parallel: int = 4 ,
-    sizes: bool = False, 
+    get_bins: bool = False, 
 ) -> Tuple:
     """Perform the serpentin binning, multi array API
 
@@ -430,9 +469,15 @@ def serpentin_binning_multi(
     parallel : int, optional
         Set it to the number of your processor if you want to attain
         maximum speeds. Default is 4.
-    sizes : bool, optional
-        Whether to keep track of the serpentine size distribution, in which
-        case it will be returned as a Counter. Default is False.
+    get_bins : bool, optional
+        Whether to report the identified bins, in which
+        case it will be returned as touple of a touple of indexes. The
+        outer touple contains a touple for each iteration, inside that, one element
+        per serpentine.
+        Each serpentine can be used as an 2D index for each stack in M,
+        to slice the values relative to its bins.
+        Note: this options consumes a significant amount of memory.
+        Default is False.
 
     Returns
     -------
@@ -443,9 +488,9 @@ def serpentin_binning_multi(
         Attention, the log-ratio matrices needs to be individually normalized by subtracting
         an appropriate value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
-    serp_size_distribution : collections.Counter, optional
-        A counter keeping track of the serpentine size distribution. Only
-        returned if the supplied 'sizes' parameter is True.
+    bins : Touple, optional
+        A touple containing the touple of serpentines for each iteration. Only
+        returned if the supplied 'bins' parameter is True.
     """
 
     try:
@@ -473,6 +518,8 @@ def serpentin_binning_multi(
     iterations = int(iterations)
 
     sM = _np.zeros((dim0, dim0, dim1, dim2))
+    if get_bins:
+        bins = []
 
     serp_size_distribution = _col.Counter()
 
@@ -485,17 +532,18 @@ def serpentin_binning_multi(
             )
         p = _mp.Pool(parallel)
         iterator = (
-            (M, threshold, minthreshold, triangular, verbose)
+            (M, threshold, minthreshold, triangular, verbose, 0, get_bins)
             for x in range(iterations)
         )
         res = p.map(_serpentin_iteration_multi_mp, iterator)
 
         for r in res:
-            sM = sM + r
-            if sizes:
-                # Note: how does it work? Seems wrong to me
-                val_distribution = _col.Counter(_it.chain(*sM))
-                serp_size_distribution += _col.Counter(val_distribution.keys())
+            if get_bins:
+                Mt, binst = r
+                bins.append(binst)
+            else:
+                Mt = r
+            sM = sM + Mt
 
     else:
         if verbose:
@@ -506,26 +554,49 @@ def serpentin_binning_multi(
             )
         if iterations > 0:
             for _ in range(int(iterations)):
-                Mt = serpentin_iteration_multi(
-                    M,
-                    threshold=threshold,
-                    minthreshold=minthreshold,
-                    triangular=triangular,
-                    verbose=verbose,
-                )
+                if get_bins:
+                    Mt, binst = serpentin_iteration_multi(
+                        M,
+                        threshold=threshold,
+                        minthreshold=minthreshold,
+                        triangular=triangular,
+                        verbose=verbose,
+                        get_bins=get_bins
+                    )
+                    bins.append(binst)
+                else:
+                    Mt = serpentin_iteration_multi(
+                        M,
+                        threshold=threshold,
+                        minthreshold=minthreshold,
+                        triangular=triangular,
+                        verbose=verbose,
+                        get_bins=get_bins
+                    )
                 sM = sM + Mt
         else:
             iterations = 1
             current_diff = float("inf")
             while current_diff < precision:
-                Mt = serpentin_iteration_multi(
-                    M,
-                    threshold=threshold,
-                    minthreshold=minthreshold,
-                    triangular=triangular,
-                    force_symmetric=force_symmetric,
-                    verbose=verbose,
-                )
+                if get_bins:
+                    Mt, binst = serpentin_iteration_multi(
+                        M,
+                        threshold=threshold,
+                        minthreshold=minthreshold,
+                        triangular=triangular,
+                        verbose=verbose,
+                        get_bins=get_bins
+                    )
+                    bins.append(binst)
+                else:
+                    Mt = serpentin_iteration_multi(
+                        M,
+                        threshold=threshold,
+                        minthreshold=minthreshold,
+                        triangular=triangular,
+                        verbose=verbose,
+                        get_bins=get_bins
+                    )
                 new_sM = sM + Mt
                 sM_diff = _np.abs(
                     (new_sM / (iterations + 1)) - (sM / iterations)
@@ -546,8 +617,8 @@ def serpentin_binning_multi(
             for j in dim1:
                 sM = _np.tril(sM[i,j]) + _np.tril(sM[i,j]).T - _np.diag(_np.diag(sM[i,j]))
 
-    if sizes:
-        return sM, serp_size_distribution
+    if get_bins:
+        return sM, tuple(bins)
     else:
         return sM
 
@@ -563,7 +634,7 @@ def serpentin_binning(
     force_symmetric: bool = False,
     verbose: bool = True,
     parallel: int = 4 ,
-    sizes: bool = False,
+    get_bins: bool = False,
 ) -> Tuple:
     """Perform the serpentin binning
 
@@ -602,9 +673,15 @@ def serpentin_binning(
     parallel : int, optional
         Set it to the number of your processor if you want to attain
         maximum speeds. Default is 4.
-    sizes : bool, optional
-        Whether to keep track of the serpentine size distribution, in which
-        case it will be returned as a Counter. Default is False.
+    get_bins : bool, optional
+        Whether to report the identified bins, in which
+        case it will be returned as touple of a touple of indexes. The
+        outer touple contains a touple for each iteration, inside that, one element
+        per serpentine.
+        Each serpentine can be used as an index for the inputs A and B,
+        to slice the values relative to its bins.
+        Note: this options consumes a significant amount of memory.
+        Default is False.
 
     Returns
     -------
@@ -615,9 +692,9 @@ def serpentin_binning(
         matrix needs to be normalized by subtracting an appropriate
         value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
-    serp_size_distribution : collections.Counter, optional
-        A counter keeping track of the serpentine size distribution. Only
-        returned if the supplied 'sizes' parameter is True.
+    bins : Touple, optional
+        A touple containing the touple of serpentines for each iteration. Only
+        returned if the supplied 'bins' parameter is True.
     """
 
     try:
@@ -629,23 +706,23 @@ def serpentin_binning(
 
     M = _np.stack((A,B))
 
-    if sizes:
-        sM, serp_size_distribution = serpentin_binning_multi(M,
+    if get_bins:
+        sM, bins = serpentin_binning_multi(M,
             threshold, minthreshold, iterations, precision,
             triangular, force_symmetric,
-            verbose, parallel, sizes
+            verbose, parallel, get_bins
         )
 
         sA = sM[0,0]
         sB = sM[1,1]
         sK = sM[0,1]
-        return sA, sB, sK, serp_size_distribution
+        return sA, sB, sK, bins
 
     else:
         sM = serpentin_binning_multi(M,
             threshold, minthreshold, iterations, precision,
             triangular, force_symmetric,
-            verbose, parallel, sizes
+            verbose, parallel, get_bins
         )
 
         sA = sM[0,0]
