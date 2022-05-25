@@ -389,7 +389,6 @@ def serpentin_binning_multi(
     precision: float = DEFAULT_PRECISION,
     triangular: bool = False,
     force_symmetric: bool = False,
-    force_logratio: bool = True,
     verbose: bool = True,
     parallel: int = 4 ,
     sizes: bool = False, 
@@ -562,7 +561,6 @@ def serpentin_binning(
     precision: float = DEFAULT_PRECISION,
     triangular: bool = False,
     force_symmetric: bool = False,
-    force_logratio: bool = True,
     verbose: bool = True,
     parallel: int = 4 ,
     sizes: bool = False,
@@ -634,7 +632,7 @@ def serpentin_binning(
     if sizes:
         sM, serp_size_distribution = serpentin_binning_multi(M,
             threshold, minthreshold, iterations, precision,
-            triangular, force_symmetric, force_logratio,
+            triangular, force_symmetric,
             verbose, parallel, sizes
         )
 
@@ -646,7 +644,7 @@ def serpentin_binning(
     else:
         sM = serpentin_binning_multi(M,
             threshold, minthreshold, iterations, precision,
-            triangular, force_symmetric, force_logratio,
+            triangular, force_symmetric,
             verbose, parallel, sizes
         )
 
