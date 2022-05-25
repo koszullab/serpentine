@@ -122,7 +122,7 @@ def serpentin_iteration_multi(
         Diagonals to ignore when performing the binning.
     get_bins : bool, optional
         Whether to return the identified bins, in which
-        case it will be returned as touple indexes. One element of the touple
+        case it will be returned as tuple indexes. One element of the tuple
         per serpentine.
         Each serpentine can be used as an 2D index for each stack in M,
         to slice the values relative to its bins.
@@ -138,8 +138,8 @@ def serpentin_iteration_multi(
         Attention, the log-ratio matrices needs to be individually normalized by subtracting
         an appropriate value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
-    bins : Touple, optional
-        A touple containing the serpentines.
+    bins : Tuple, optional
+        A tuple containing the serpentines.
         Only returned if the supplied 'bins' parameter is True.
     """
 
@@ -369,7 +369,7 @@ def serpentin_iteration(
         Diagonals to ignore when performing the binning.
     get_bins : bool, optional
         Whether to return the identified bins, in which
-        case it will be returned as touple indexes. One element of the touple
+        case it will be returned as tuple indexes. One element of the tuple
         per serpentine.
         Each serpentine can be used as an 2D index for each stack in M,
         to slice the values relative to its bins.
@@ -385,8 +385,8 @@ def serpentin_iteration(
         matrix need to be normalized by subtractiong an appropriate
         value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
-    bins : Touple, optional
-        A touple containing the serpentines.
+    bins : Tuple, optional
+        A tuple containing the serpentines.
         Only returned if the supplied 'bins' parameter is True.
     """
 
@@ -477,8 +477,8 @@ def serpentin_binning_multi(
         Number of diagonals to ignore when performing the binning.
     get_bins : bool, optional
         Whether to report the identified bins, in which
-        case it will be returned as touple of a touple of indexes. The
-        outer touple contains a touple for each iteration, inside that, one element
+        case it will be returned as tuple of a tuple of indexes. The
+        outer tuple contains a tuple for each iteration, inside that, one element
         per serpentine.
         Each serpentine can be used as an 2D index for each stack in M,
         to slice the values relative to its bins.
@@ -494,8 +494,8 @@ def serpentin_binning_multi(
         Attention, the log-ratio matrices needs to be individually normalized by subtracting
         an appropriate value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
-    bins : Touple, optional
-        A touple containing the touple of serpentines for each iteration. Only
+    bins : Tuple, optional
+        A tuple containing the tuple of serpentines for each iteration. Only
         returned if the supplied 'bins' parameter is True.
     """
 
@@ -688,8 +688,8 @@ def serpentin_binning(
         Number of diagonals to ignore when performing the binning.
     get_bins : bool, optional
         Whether to report the identified bins, in which
-        case it will be returned as touple of a touple of indexes. The
-        outer touple contains a touple for each iteration, inside that, one element
+        case it will be returned as tuple of a tuple of indexes. The
+        outer tuple contains a tuple for each iteration, inside that, one element
         per serpentine.
         Each serpentine can be used as an index for the inputs A and B,
         to slice the values relative to its bins.
@@ -705,8 +705,8 @@ def serpentin_binning(
         matrix needs to be normalized by subtracting an appropriate
         value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
-    bins : Touple, optional
-        A touple containing the touple of serpentines for each iteration. Only
+    bins : Tuple, optional
+        A tuple containing the tuple of serpentines for each iteration. Only
         returned if the supplied 'bins' parameter is True.
     """
 
