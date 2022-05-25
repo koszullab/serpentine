@@ -329,7 +329,6 @@ def serpentin_iteration_multi(
             x = p // dim2
             y = p - dim2 * x
             bins.append((tuple(x), tuple(y)))
-        print(bins)
 
         return D, tuple(bins)
     else:
