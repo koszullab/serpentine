@@ -329,6 +329,7 @@ def serpentin_iteration_multi(
             x = p // dim2
             y = p - dim2 * x
             bins.append((tuple(x), tuple(y)))
+        print(bins)
 
         return D, tuple(bins)
     else:
@@ -433,6 +434,7 @@ def serpentin_binning_multi(
     force_symmetric: bool = False,
     verbose: bool = True,
     parallel: int = 4 ,
+    offset: int = 0,
     get_bins: bool = False, 
 ) -> Tuple:
     """Perform the serpentin binning, multi array API
@@ -472,6 +474,8 @@ def serpentin_binning_multi(
     parallel : int, optional
         Set it to the number of your processor if you want to attain
         maximum speeds. Default is 4.
+    offset : int, optional
+        Number of diagonals to ignore when performing the binning.
     get_bins : bool, optional
         Whether to report the identified bins, in which
         case it will be returned as touple of a touple of indexes. The
@@ -535,7 +539,7 @@ def serpentin_binning_multi(
             )
         p = _mp.Pool(parallel)
         iterator = (
-            (M, threshold, minthreshold, triangular, verbose, 0, get_bins)
+            (M, threshold, minthreshold, triangular, verbose, offset, get_bins)
             for x in range(iterations)
         )
         res = p.map(_serpentin_iteration_multi_mp, iterator)
@@ -564,6 +568,7 @@ def serpentin_binning_multi(
                         minthreshold=minthreshold,
                         triangular=triangular,
                         verbose=verbose,
+                        offset=offset,
                         get_bins=get_bins
                     )
                     bins.append(binst)
@@ -574,6 +579,7 @@ def serpentin_binning_multi(
                         minthreshold=minthreshold,
                         triangular=triangular,
                         verbose=verbose,
+                        offset=offset,
                         get_bins=get_bins
                     )
                 sM = sM + Mt
@@ -588,6 +594,7 @@ def serpentin_binning_multi(
                         minthreshold=minthreshold,
                         triangular=triangular,
                         verbose=verbose,
+                        offset=offset,
                         get_bins=get_bins
                     )
                     bins.append(binst)
@@ -598,6 +605,7 @@ def serpentin_binning_multi(
                         minthreshold=minthreshold,
                         triangular=triangular,
                         verbose=verbose,
+                        offset=offset,
                         get_bins=get_bins
                     )
                 new_sM = sM + Mt
@@ -637,6 +645,7 @@ def serpentin_binning(
     force_symmetric: bool = False,
     verbose: bool = True,
     parallel: int = 4 ,
+    offset: int = 0,
     get_bins: bool = False,
 ) -> Tuple:
     """Perform the serpentin binning
@@ -676,6 +685,8 @@ def serpentin_binning(
     parallel : int, optional
         Set it to the number of your processor if you want to attain
         maximum speeds. Default is 4.
+    offset : int, optional
+        Number of diagonals to ignore when performing the binning.
     get_bins : bool, optional
         Whether to report the identified bins, in which
         case it will be returned as touple of a touple of indexes. The
@@ -713,7 +724,7 @@ def serpentin_binning(
         sM, bins = serpentin_binning_multi(M,
             threshold, minthreshold, iterations, precision,
             triangular, force_symmetric,
-            verbose, parallel, get_bins
+            verbose, parallel, offset, get_bins
         )
 
         sA = sM[0,0]
@@ -725,7 +736,7 @@ def serpentin_binning(
         sM = serpentin_binning_multi(M,
             threshold, minthreshold, iterations, precision,
             triangular, force_symmetric,
-            verbose, parallel, get_bins
+            verbose, parallel, offset, get_bins
         )
 
         sA = sM[0,0]
