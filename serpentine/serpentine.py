@@ -721,9 +721,16 @@ def serpentin_binning(
 
     if get_bins:
         sM, bins = serpentin_binning_multi(M,
-            threshold, minthreshold, iterations, precision,
-            triangular, force_symmetric,
-            verbose, parallel, offset, get_bins
+            threshold=threshold,
+            iterations=iterations,
+            precision=precision,
+            minthreshold=minthreshold,
+            triangular=triangular,
+            force_symmetric=force_symmetric,
+            verbose=verbose,
+            parallel=parallel,
+            offset=offset,
+            get_bins=get_bins
         )
 
         sA = sM[0,0]
@@ -733,9 +740,16 @@ def serpentin_binning(
 
     else:
         sM = serpentin_binning_multi(M,
-            threshold, minthreshold, iterations, precision,
-            triangular, force_symmetric,
-            verbose, parallel, offset, get_bins
+            threshold=threshold,
+            iterations=iterations,
+            precision=precision,
+            minthreshold=minthreshold,
+            triangular=triangular,
+            force_symmetric=force_symmetric,
+            verbose=verbose,
+            parallel=parallel,
+            offset=offset,
+            get_bins=get_bins
         )
 
         sA = sM[0,0]
