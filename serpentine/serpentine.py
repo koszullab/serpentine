@@ -323,10 +323,13 @@ def serpentin_iteration_multi(
     if get_bins:
         # convert the bins in 2D coordinates
         bins = []
+        pix = (p for p in pixels if p is not None)
+
         for p in pix:
             x = p // dim2
             y = p - dim2 * x
             bins.append((tuple(x), tuple(y)))
+
         return D, tuple(bins)
     else:
         return D
