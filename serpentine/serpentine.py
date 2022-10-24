@@ -88,18 +88,17 @@ ASCII_SNAKE = """
 def alternate_print(logfile):
     return functools.partial(print, file=open(logfile, "a"))
 
-def serpentin_iteration(
-    A: _np.ndarray,
-    B: _np.ndarray,
+def serpentin_iteration_multi(
+    M: _np.ndarray,
     threshold: float = DEFAULT_THRESHOLD,
     minthreshold: float = DEFAULT_MIN_THRESHOLD,
     triangular: bool = False,
-    force_symmetric: bool = False,
     verbose: bool = True,
     offset: int = 0,
-) -> Tuple[_np.ndarray, _np.ndarray, _np.ndarray]:
+    get_bins: bool = False,
+) -> _np.ndarray:
 
-    """Perform a single iteration of serpentin binning
+    """Perform a single iteration of serpentin binning, multiple matrices version
 
     Each serpentin binning is generally executed in multiple
     iterations in order to smooth the random variability in the
@@ -107,8 +106,8 @@ def serpentin_iteration(
 
     Parameters
     ----------
-    A, B : array_like
-        The matrices to be compared.
+    M : array_like
+        The matrices to be compared, as stacked 2D matrices
     threshold : float, optional
         The threshold of rebinning for the highest coverage matrix.
     minthreshold : float, optional
@@ -117,43 +116,53 @@ def serpentin_iteration(
         Set triangular if you are interested in rebin only half of the
         matrix (for instance in the case of matrices which are
         already triangular, default is false)
-    force_symmetric : bool, optional
-        Force the final binned matrix to be symmetric. Default is False.
     verbose : bool, optional
         Set it false if you are annoyed by the printed output.
     offset : int, optional
         Diagonals to ignore when performing the binning.
+    get_bins : bool, optional
+        Whether to return the identified bins, in which
+        case it will be returned as tuple indexes. One element of the tuple
+        per serpentine.
+        Each serpentine can be used as an 2D index for each stack in M,
+        to slice the values relative to its bins.
+        Note: this options consumes a significant amount of memory.
+        Default is False.
+
     Returns
     -------
-    Amod, Bmod : array_like
-        The rebinned matrices
     D : array_like
-        The log-ratio matrix, expressend in base 2. Attention, the
-        matrix need to be normalized by subtractiong an appropriate
-        value for the zero (MDbefore or numpy.mean functions are there
+        A 4D matrix where the first two dimensions are indexes, containing:
+        the rebinned matrices on the indices-diagonal,
+        the log-ratio matrices out of diagonal, expressed in base 2.
+        Attention, the log-ratio matrices needs to be individually normalized by subtracting
+        an appropriate value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
+    bins : Tuple, optional
+        A tuple containing the serpentines.
+        Only returned if the supplied 'bins' parameter is True.
     """
+
+    try:
+        assert len(M.shape) == 3
+    except:
+            raise ValueError(
+                "M should be stacked 2D arrays"
+            )
+
+    dim0, dim1, dim2 = M.shape
 
     if triangular:
         try:
-            assert A.shape == B.shape
-            assert len(A.shape) == 2
-            assert min(A.shape) == max(A.shape)
+            assert dim1 == dim2
         except AssertionError:
             raise ValueError(
-                "Matrices must be square and have identical shape"
+                "Matrices must be square"
             )
-    else:
-        try:
-            assert A.shape == B.shape
-            assert len(A.shape) == 2
-        except AssertionError:
-            raise ValueError("Matrices must have identical shape")
 
     try:
         assert minthreshold < threshold
     except AssertionError:
-
         raise ValueError("Minimal threshold should be lower than maximal")
 
     def pixel_neighs_triangular(i, j, size):
@@ -182,45 +191,42 @@ def serpentin_iteration(
         if j < h - 1:
             yield (i, j + 1)
 
-    size = A.shape
-    U = _np.copy(A)
-    V = _np.copy(B)
-    U = U.reshape((size[0] * size[1]))
-    V = V.reshape((size[0] * size[1]))
+    U = _np.copy(M)
+    U = U.reshape((dim0, dim1 * dim2))
 
     if triangular:
         pixels = [
-            _np.array([i * size[0] + j], dtype=_np.int32)
-            for (i, j) in _it.product(range(size[0]), range(size[0]))
+            _np.array([i * dim2 + j], dtype=_np.int32)
+            for (i, j) in _it.product(range(dim1), range(dim2))
             if i >= j and abs(i - j) >= offset
         ]
 
         neighs = [
             set(
                 int((a * (a + 1) / 2)) + b
-                for (a, b) in pixel_neighs_triangular(i, j, size[0])
+                for (a, b) in pixel_neighs_triangular(i, j, dim2)
             )
-            for (i, j) in _it.product(range(size[0]), range(size[0]))
+            for (i, j) in _it.product(range(dim1), range(dim2))
             if i >= j and abs(i - j) >= offset
         ]
-        start = int(size[0] * (size[0] + 1) / 2)
+        start = int(dim1 * (dim1 + 1) / 2)
         tot = start
 
     else:
         pixels = [
-            _np.array([i * size[1] + j], dtype=_np.int32)
-            for (i, j) in _it.product(range(size[0]), range(size[1]))
+            _np.array([i * dim2 + j], dtype=_np.int32)
+            for (i, j) in _it.product(range(dim1), range(dim2))
             if abs(i - j) >= offset
         ]
         neighs = [
             set(
-                (a * size[1]) + b
-                for (a, b) in pixel_neighs(i, j, size[0], size[1])
+                (a * dim2) + b
+                for (a, b) in pixel_neighs(i, j, dim1, dim2)
             )
-            for (i, j) in _it.product(range(size[0]), range(size[1]))
+            for (i, j) in _it.product(range(dim1), range(dim2))
             if abs(i - j) >= offset
         ]
-        start = size[0] * size[1]
+        start = dim1 * dim2
         tot = start
 
     previous_existent = 0
@@ -247,14 +253,14 @@ def serpentin_iteration(
                 tot += 1
                 # choose where to expand
                 if pixels[serp].size == 1:  # Optimization for performances
-                    a = U[(pixels[serp])[0]]
-                    b = V[(pixels[serp])[0]]
+                    summes = U[:,(pixels[serp])[0]]
                 else:
-                    a = _np.sum(U[pixels[serp]])
-                    b = _np.sum(V[pixels[serp]])
+                    summes = _np.sum(U[:,pixels[serp]],axis=1)
 
-                thresh = a < threshold and b < threshold
-                minthresh = a < minthreshold or b < minthreshold
+                thresh = _np.all(summes < threshold)
+                # note, i do not understand why minthreshold if dim0 > 2
+                minthresh = _np.any(summes < minthreshold)
+
                 if thresh or minthresh:
                     try:
                         min_neigh = _choice(tuple(neighs[serp]))
@@ -289,46 +295,343 @@ def serpentin_iteration(
     pix = (p for p in pixels if p is not None)
 
     U = U.astype(_np.float32)
-    V = V.astype(_np.float32)
     for serp in pix:
-        U[serp] = _np.sum(U[serp]) * 1.0 / len(serp)
-        V[serp] = _np.sum(V[serp]) * 1.0 / len(serp)
-    U = U.reshape((size[0], size[1]))
-    V = V.reshape((size[0], size[1]))
+        U[:,serp] = _np.sum(U[:,serp],axis=1).reshape((dim0,1)) * 1.0 / len(serp)
+    U = U.reshape((dim0, dim1, dim2))
+
+    D = _np.zeros((dim0, dim0, dim1, dim2))
 
     if triangular:
-        Amod = (
-            _np.tril(U)
-            + _np.transpose(_np.tril(U))
-            - _np.diag(_np.diag(_np.tril(U)))
-        )
-        Bmod = (
-            _np.tril(V)
-            + _np.transpose(_np.tril(V))
-            - _np.diag(_np.diag(_np.tril(V)))
-        )
-        trili = _np.tril_indices(_np.int(_np.sqrt(Bmod.size)))
-        D = _np.zeros_like(Bmod)
-        D[trili] = V[trili] * 1.0 / U[trili]
-        D[trili] = _np.log2(D[trili])
-
-    # elif force_symmetric:
-    #     Amod = (U + U.T) / 2
-    #     Bmod = (V + V.T) / 2
-    #     D = V * 1.0 / U
-    #     D = _np.log2(D)
+        trili = _np.tril_indices(dim1)
+        for i in range(dim0):
+            D[i,i] = (
+                _np.tril(U[i])
+                + _np.transpose(_np.tril(U[i]))
+                - _np.diag(_np.diag(_np.tril(U[i])))
+            )
+            for j in range(dim0):
+                if i != j:
+                    D[i,j,trili] = U[i,trili] * 1.0 / U[j,trili]
+                    D[i,j,trili] = _np.log2(D[i,j,trili])
 
     else:
-        Amod = U
-        Bmod = V
-        D = V * 1.0 / U
-        D = _np.log2(D)
+        D[_np.eye(dim0, dtype=bool)] = U
+        for i in range(dim0):
+            for j in range(dim0):
+                if i != j:
+                    D[i,j] = _np.log2(U[i] * 1.0 / U[j])
 
-    return (Amod, Bmod, D)
+    if get_bins:
+        # convert the bins in 2D coordinates
+        bins = []
+        pix = (p for p in pixels if p is not None)
+
+        for p in pix:
+            x = p // dim2
+            y = p - dim2 * x
+            bins.append((tuple(x), tuple(y)))
+
+        return D, tuple(bins)
+    else:
+        return D
+
+def serpentin_iteration(
+    A: _np.ndarray,
+    B: _np.ndarray,
+    threshold: float = DEFAULT_THRESHOLD,
+    minthreshold: float = DEFAULT_MIN_THRESHOLD,
+    triangular: bool = False,
+    verbose: bool = True,
+    offset: int = 0,
+    get_bins: bool = False,
+) -> Tuple[_np.ndarray, _np.ndarray, _np.ndarray]:
+
+    """Perform a single iteration of serpentin binning
+
+    Each serpentin binning is generally executed in multiple
+    iterations in order to smooth the random variability in the
+    bin aggregation. This funciton performs a single iteration.
+
+    Parameters
+    ----------
+    A, B : array_like
+        The matrices to be compared.
+    threshold : float, optional
+        The threshold of rebinning for the highest coverage matrix.
+    minthreshold : float, optional
+        The threshold for both matrices
+    triangular : bool, optional
+        Set triangular if you are interested in rebin only half of the
+        matrix (for instance in the case of matrices which are
+        already triangular, default is false)
+    verbose : bool, optional
+        Set it false if you are annoyed by the printed output.
+    offset : int, optional
+        Diagonals to ignore when performing the binning.
+    get_bins : bool, optional
+        Whether to return the identified bins, in which
+        case it will be returned as tuple indexes. One element of the tuple
+        per serpentine.
+        Each serpentine can be used as an 2D index for each stack in M,
+        to slice the values relative to its bins.
+        Note: this options consumes a significant amount of memory.
+        Default is False.
+
+    Returns
+    -------
+    Amod, Bmod : array_like
+        The rebinned matrices
+    D : array_like
+        The log-ratio matrix, expressend in base 2. Attention, the
+        matrix need to be normalized by subtractiong an appropriate
+        value for the zero (MDbefore or numpy.mean functions are there
+        to help you in this task).
+    bins : Tuple, optional
+        A tuple containing the serpentines.
+        Only returned if the supplied 'bins' parameter is True.
+    """
+
+    try:
+        assert(A.shape == B.shape)
+    except AssertionError:
+        raise ValueError(
+            "Matrices must have identical shape"
+        )
+
+    M = _np.stack((A,B))
+
+    if get_bins:
+        sM, bins = serpentin_iteration_multi(M,
+            threshold, minthreshold, triangular,
+            verbose, offset, get_bins
+        )
+    else:
+        sM = serpentin_iteration_multi(M,
+            threshold, minthreshold, triangular,
+            verbose, offset, get_bins
+        )
+
+    Amod = sM[0,0]
+    Bmod = sM[1,1]
+    D = sM[0,1]
+    
+    if get_bins:
+        return Amod, Bmod, D, bins
+    else:
+        return Amod, Bmod, D
+
+def _serpentin_iteration_multi_mp(value):
+    return serpentin_iteration_multi(*value)
 
 
-def _serpentin_iteration_mp(value):
-    return serpentin_iteration(*value)
+def serpentin_binning_multi(
+    M: _np.ndarray,
+    threshold: float = DEFAULT_THRESHOLD,
+    minthreshold: float = DEFAULT_MIN_THRESHOLD,
+    iterations: float = DEFAULT_ITERATIONS,
+    precision: float = DEFAULT_PRECISION,
+    triangular: bool = False,
+    force_symmetric: bool = False,
+    verbose: bool = True,
+    parallel: int = 4 ,
+    offset: int = 0,
+    get_bins: bool = False, 
+) -> Tuple:
+    """Perform the serpentin binning, multi array API
+
+    The function will perform the algorithm to serpentin bin two
+    or more matrices, iterations can be done in series or in parallel,
+    convinient for multi-processor machines.
+
+    Parameters
+    ----------
+    M : array_like
+        The matrices to be compared, as stacked 2D matrices.
+    threshold : float, optional
+        The threshold of rebinning for the highest coverage matrix. Default is
+        set by the DEFAULT_THRESHOLD parameter, which is 50 if unchanged.
+    minthreshold : float, optional
+        The threshold for both matrices. Default is set by the
+        DEFAULT_MIN_THRESHOLD parameter, which is 10 if unchanged.
+    iterations : int, optional
+        The number of iterations requested, more iterations will
+        consume more time, but also will result in better and smoother
+        results. If 0 or negative, iterations will continue until the average
+        matrix after one more iteration doesn't differ by more than the
+        precision parameter. Default is 10.
+    precision : float, optional
+        If the iterations parameter is 0 or negative, the iterations will
+        continue until the average matrix after one more iteration doesn't
+        differ by more than the precision parameter. Default is 0.05.
+    triangular : bool, optional
+        Set triangular if you are interested in rebinning only half of the
+        matrix (for instance in the case of matrices which are
+        already triangular, default is False).
+    force_symmetric : bool, optional
+    verbose : bool, optional
+        Whether to print additional output during the computation. Default is
+        False.
+    parallel : int, optional
+        Set it to the number of your processor if you want to attain
+        maximum speeds. Default is 4.
+    offset : int, optional
+        Number of diagonals to ignore when performing the binning.
+    get_bins : bool, optional
+        Whether to report the identified bins, in which
+        case it will be returned as tuple of a tuple of indexes. The
+        outer tuple contains a tuple for each iteration, inside that, one element
+        per serpentine.
+        Each serpentine can be used as an 2D index for each stack in M,
+        to slice the values relative to its bins.
+        Note: this options consumes a significant amount of memory.
+        Default is False.
+
+    Returns
+    -------
+    sM : array_like
+        A 4D matrix where the first two dimensions are indexes, containing:
+        the rebinned matrices on the indices-diagonal,
+        the log-ratio matrices out of diagonal, expressed in base 2.
+        Attention, the log-ratio matrices needs to be individually normalized by subtracting
+        an appropriate value for the zero (MDbefore or numpy.mean functions are there
+        to help you in this task).
+    bins : Tuple, optional
+        A tuple containing the tuple of serpentines for each iteration. Only
+        returned if the supplied 'bins' parameter is True.
+    """
+
+    try:
+        assert len(M.shape) == 3
+    except:
+            raise ValueError(
+                "M should be stacked 2D arrays"
+            )
+
+    dim0, dim1, dim2 = M.shape
+
+    if triangular:
+        try:
+            assert dim1 == dim2
+        except AssertionError:
+            raise ValueError(
+                "Matrices must be square"
+            )
+
+    try:
+        assert minthreshold < threshold
+    except AssertionError:
+        raise ValueError("Minimal threshold should be lower than maximal")
+
+    iterations = int(iterations)
+
+    sM = _np.zeros((dim0, dim0, dim1, dim2))
+    if get_bins:
+        bins = []
+
+    serp_size_distribution = _col.Counter()
+
+    if parallel > 1:
+        if verbose:
+            print(
+                "Starting {} binning processes in batches of {}...".format(
+                    iterations, parallel
+                )
+            )
+        p = _mp.Pool(parallel)
+        iterator = (
+            (M, threshold, minthreshold, triangular, verbose, offset, get_bins)
+            for x in range(iterations)
+        )
+        res = p.map(_serpentin_iteration_multi_mp, iterator)
+
+        for r in res:
+            if get_bins:
+                Mt, binst = r
+                bins.append(binst)
+            else:
+                Mt = r
+            sM = sM + Mt
+
+    else:
+        if verbose:
+            print(
+                "{} Starting {} binning processes...".format(
+                    _datetime.now(), iterations
+                )
+            )
+        if iterations > 0:
+            for _ in range(int(iterations)):
+                if get_bins:
+                    Mt, binst = serpentin_iteration_multi(
+                        M,
+                        threshold=threshold,
+                        minthreshold=minthreshold,
+                        triangular=triangular,
+                        verbose=verbose,
+                        offset=offset,
+                        get_bins=get_bins
+                    )
+                    bins.append(binst)
+                else:
+                    Mt = serpentin_iteration_multi(
+                        M,
+                        threshold=threshold,
+                        minthreshold=minthreshold,
+                        triangular=triangular,
+                        verbose=verbose,
+                        offset=offset,
+                        get_bins=get_bins
+                    )
+                sM = sM + Mt
+        else:
+            iterations = 1
+            current_diff = float("inf")
+            while current_diff < precision:
+                if get_bins:
+                    Mt, binst = serpentin_iteration_multi(
+                        M,
+                        threshold=threshold,
+                        minthreshold=minthreshold,
+                        triangular=triangular,
+                        verbose=verbose,
+                        offset=offset,
+                        get_bins=get_bins
+                    )
+                    bins.append(binst)
+                else:
+                    Mt = serpentin_iteration_multi(
+                        M,
+                        threshold=threshold,
+                        minthreshold=minthreshold,
+                        triangular=triangular,
+                        verbose=verbose,
+                        offset=offset,
+                        get_bins=get_bins
+                    )
+                new_sM = sM + Mt
+                sM_diff = _np.abs(
+                    (new_sM / (iterations + 1)) - (sM / iterations)
+                )
+                if (
+                    _np.amax(sM_diff) < precision
+                ):
+                    break
+
+                else:
+                    sM = new_sM
+                    iterations += 1
+
+    sM = sM * 1.0 / iterations
+
+    if force_symmetric:
+        for i in dim0:
+            for j in dim1:
+                sM = _np.tril(sM[i,j]) + _np.tril(sM[i,j]).T - _np.diag(_np.diag(sM[i,j]))
+
+    if get_bins:
+        return sM, tuple(bins)
+    else:
+        return sM
 
 
 def serpentin_binning(
@@ -340,10 +643,10 @@ def serpentin_binning(
     precision: float = DEFAULT_PRECISION,
     triangular: bool = False,
     force_symmetric: bool = False,
-    force_logratio: bool = True,
     verbose: bool = True,
     parallel: int = 4 ,
-    sizes: bool = False,
+    offset: int = 0,
+    get_bins: bool = False,
 ) -> Tuple:
     """Perform the serpentin binning
 
@@ -382,9 +685,17 @@ def serpentin_binning(
     parallel : int, optional
         Set it to the number of your processor if you want to attain
         maximum speeds. Default is 4.
-    sizes : bool, optional
-        Whether to keep track of the serpentine size distribution, in which
-        case it will be returned as a Counter. Default is False.
+    offset : int, optional
+        Number of diagonals to ignore when performing the binning.
+    get_bins : bool, optional
+        Whether to report the identified bins, in which
+        case it will be returned as tuple of a tuple of indexes. The
+        outer tuple contains a tuple for each iteration, inside that, one element
+        per serpentine.
+        Each serpentine can be used as an index for the inputs A and B,
+        to slice the values relative to its bins.
+        Note: this options consumes a significant amount of memory.
+        Default is False.
 
     Returns
     -------
@@ -395,133 +706,56 @@ def serpentin_binning(
         matrix needs to be normalized by subtracting an appropriate
         value for the zero (MDbefore or numpy.mean functions are there
         to help you in this task).
-    serp_size_distribution : collections.Counter, optional
-        A counter keeping track of the serpentine size distribution. Only
-        returned if the supplied 'sizes' parameter is True.
+    bins : Tuple, optional
+        A tuple containing the tuple of serpentines for each iteration. Only
+        returned if the supplied 'bins' parameter is True.
     """
 
-    if triangular:
-        try:
-            assert A.shape == B.shape
-            assert len(A.shape) == 2
-            assert min(A.shape) == max(A.shape)
-        except AssertionError:
-            raise ValueError(
-                "Matrices must be square and have identical shape"
-            )
-    else:
-        try:
-            assert A.shape == B.shape
-            assert len(A.shape) == 2
-        except AssertionError:
-            raise ValueError("Matrices must have identical shape")
     try:
-        assert minthreshold < threshold
+        assert(A.shape == B.shape)
     except AssertionError:
-        raise ValueError("Minimal threshold should be lower than maximal")
-
-    iterations = int(iterations)
-
-    sK = _np.zeros_like(A)
-    sA = _np.zeros_like(A)
-    sB = _np.zeros_like(A)
-
-    serp_size_distribution = _col.Counter()
-
-    if parallel > 1:
-        if verbose:
-            print(
-                "Starting {} binning processes in batches of {}...".format(
-                    iterations, parallel
-                )
-            )
-        p = _mp.Pool(parallel)
-        iterator = (
-            (A, B, threshold, minthreshold, triangular, verbose)
-            for x in range(iterations)
+        raise ValueError(
+            "Matrices must have identical shape"
         )
-        res = p.map(_serpentin_iteration_mp, iterator)
 
-        for r in res:
-            At, Bt, Kt = r
-            sK = sK + Kt
-            sA = sA + At
-            sB = sB + Bt
-            if sizes:
-                val_distribution = _col.Counter(_it.chain(*sK))
-                serp_size_distribution += _col.Counter(val_distribution.keys())
+    M = _np.stack((A,B))
+
+    if get_bins:
+        sM, bins = serpentin_binning_multi(M,
+            threshold=threshold,
+            iterations=iterations,
+            precision=precision,
+            minthreshold=minthreshold,
+            triangular=triangular,
+            force_symmetric=force_symmetric,
+            verbose=verbose,
+            parallel=parallel,
+            offset=offset,
+            get_bins=get_bins
+        )
+
+        sA = sM[0,0]
+        sB = sM[1,1]
+        sK = sM[0,1]
+        return sA, sB, sK, bins
 
     else:
-        if verbose:
-            print(
-                "{} Starting {} binning processes...".format(
-                    _datetime.now(), iterations
-                )
-            )
-        if iterations > 0:
-            for _ in range(int(iterations)):
-                At, Bt, Kt = serpentin_iteration(
-                    A,
-                    B,
-                    threshold=threshold,
-                    minthreshold=minthreshold,
-                    triangular=triangular,
-                    verbose=verbose,
-                )
-                sK = sK + Kt
-                sA = sA + At
-                sB = sB + Bt
-        else:
-            iterations = 1
-            current_diff = float("inf")
-            while current_diff < precision:
-                At, Bt, Kt = serpentin_iteration(
-                    A,
-                    B,
-                    threshold=threshold,
-                    minthreshold=minthreshold,
-                    triangular=triangular,
-                    force_symmetric=force_symmetric,
-                    verbose=verbose,
-                )
-                new_sK = sK + Kt
-                new_sA = sA + At
-                new_sB = sB + Bt
-                sK_diff = _np.abs(
-                    (new_sK / (iterations + 1)) - (sK / iterations)
-                )
-                sA_diff = _np.abs(
-                    (new_sA / (iterations + 1)) - (sA / iterations)
-                )
-                sB_diff = _np.abs(
-                    (new_sB / (iterations + 1)) - (sB / iterations)
-                )
-                if (
-                    max(_np.amax(sK_diff), _np.amax(sA_diff), _np.abs(sB_diff))
-                    < precision
-                ):
-                    break
+        sM = serpentin_binning_multi(M,
+            threshold=threshold,
+            iterations=iterations,
+            precision=precision,
+            minthreshold=minthreshold,
+            triangular=triangular,
+            force_symmetric=force_symmetric,
+            verbose=verbose,
+            parallel=parallel,
+            offset=offset,
+            get_bins=get_bins
+        )
 
-                else:
-                    sK = new_sK
-                    sA = new_sA
-                    sB = new_sB
-                    iterations += 1
-
-    sK = sK * 1.0 / iterations
-    sA = sA * 1.0 / iterations
-    sB = sB * 1.0 / iterations
-
-    sK = _np.log2(sB/sA)
-    
-    if force_symmetric:
-        sK = _np.tril(sK) + _np.tril(sK).T - _np.diag(_np.diag(sK))
-        sA = _np.tril(sA) + _np.tril(sA).T - _np.diag(_np.diag(sA))
-        sB = _np.tril(sB) + _np.tril(sB).T - _np.diag(_np.diag(sB))
-
-    if sizes:
-        return sA, sB, sK, serp_size_distribution
-    else:
+        sA = sM[0,0]
+        sB = sM[1,1]
+        sK = sM[0,1]
         return sA, sB, sK
 
 

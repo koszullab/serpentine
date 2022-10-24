@@ -22,6 +22,8 @@ from .serpentine import (
     outstanding_filter,
     serpentin_binning,
     serpentin_iteration,
+    serpentin_binning_multi,
+    serpentin_iteration_multi,
     barycenter,
     all_barycenters,
     extract_serpentines,
