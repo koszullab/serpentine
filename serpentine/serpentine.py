@@ -318,7 +318,8 @@ def serpentin_iteration_multi(
         D[_np.eye(dim0, dtype=bool)] = U
         for i in range(dim0):
             for j in range(dim0):
-                D[i,j] = _np.log2(U[i] * 1.0 / U[j])
+                if i != j:
+                    D[i,j] = _np.log2(U[i] * 1.0 / U[j])
 
     if get_bins:
         # convert the bins in 2D coordinates
